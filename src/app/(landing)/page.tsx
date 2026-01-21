@@ -1,7 +1,5 @@
+import Hero from "@/widgets/hero/Hero";
+
 export default function Landing() {
-  return (
-    <div className="">
-      <main className=""></main>
-    </div>
-  );
+  return <Hero />;
 }

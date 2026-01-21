@@ -4,10 +4,63 @@
 @theme {
   --font-sans: var(--font-montserrat), ui-sans-serif, system-ui;
   --font-heading: var(--font-trade-gothic), sans-serif;
+
+  --color-bg: #fafbfc;
+  --color-neutral: #ffffff;
+  --color-dark: #000000;
+  --color-neutral-gray: #8f8c91;
+  --color-light-gray: #d2d1d3;
+  --color-light-green: #cdeae1;
+  --color-mint-green: #8dd3bb;
+  --color-blackish-green: #112211;
+  --color-salmon: #ff8682;
+  --color-fields: #1c1b1f;
+  --color-error: #fd736e;
+
+  --breakpoint-xs: 425px;
+  --breakpoint-2xl: 1440px;
+}
+
+@layer base {
+  .dark {
+    --color-bg: #121214;
+  }
+}
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 1rem;
+  width: 100%;
+
+  @variant xs {
+    max-width: 425px;
+  }
+
+  @variant sm {
+    max-width: 640px;
+  }
+
+  @variant md {
+    max-width: 768px;
+  }
+
+  @variant lg {
+    max-width: 1024px;
+  }
+
+  @variant xl {
+    max-width: 1280px;
+  }
+
+  @variant 2xl {
+    max-width: 1440px;
+  }
 }
 
 body {
+  background-color: var(--color-bg);
   font-family: var(--font-sans);
+  font-weight: 400;
 }
 
 h1,
