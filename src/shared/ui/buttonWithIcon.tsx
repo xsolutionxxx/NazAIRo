@@ -5,6 +5,7 @@ import { cn } from "@/shared/lib/utils";
 interface ButtonWithIconProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   icon: LucideIcon;
   size?: number;
+  iconClasses?: string;
   strokeWidth?: number;
   children?: ReactNode;
 }
@@ -12,6 +13,7 @@ interface ButtonWithIconProps extends React.ButtonHTMLAttributes<HTMLButtonEleme
 export const ButtonWithIcon = ({
   icon: IconComponent,
   size = 24,
+  iconClasses,
   strokeWidth = 1.5,
   children,
   className,
@@ -20,12 +22,16 @@ export const ButtonWithIcon = ({
   return (
     <button
       className={cn(
-        "flex items-center gap-2 font-semibold text-lg md:text-xs lg:text-sm text-blackish-green lg:cursor-pointer lg:hover:text-salmon",
+        "flex items-center gap-3 md:gap-2 font-semibold text-lg md:text-xs lg:text-sm text-blackish-green lg:cursor-pointer lg:hover:text-salmon",
         className,
       )}
       {...props}
     >
-      <IconComponent size={size} strokeWidth={strokeWidth} />
+      <IconComponent
+        size={size}
+        strokeWidth={strokeWidth}
+        className={iconClasses}
+      />
       {children}
     </button>
   );

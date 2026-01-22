@@ -51,7 +51,7 @@ export const ThemeToggleVortex = ({ className }: { className?: string }) => {
   }, []);
 
   if (!mounted) {
-    return <div className={cn("w-10 h-10", className)} />;
+    return <div className={cn("w-7 h-7 lg:w-9 lg:h-9", className)} />;
   }
 
   const isDark = theme === "dark";
@@ -60,7 +60,7 @@ export const ThemeToggleVortex = ({ className }: { className?: string }) => {
     <button
       onClick={() => setTheme(isDark ? "light" : "dark")}
       className={cn(
-        "relative w-10 h-10 flex items-center justify-center rounded-full transition-colors hover:bg-black/5 dark:hover:bg-white/10",
+        "relative w-7 h-7 lg:w-9 lg:h-9 flex items-center justify-center rounded-full transition-colors lg:hover:bg-black/5 lg:dark:hover:bg-white/10",
         className,
       )}
       aria-label="Toggle Theme"
@@ -69,8 +69,7 @@ export const ThemeToggleVortex = ({ className }: { className?: string }) => {
         {isDark ? (
           <MotionSun
             key="sun"
-            size={28}
-            className="text-neutral absolute"
+            className="text-neutral absolute w-7 h-7 md:w-6 md:h-6"
             variants={vortexVariants}
             initial="initial"
             animate="animate"
@@ -79,8 +78,7 @@ export const ThemeToggleVortex = ({ className }: { className?: string }) => {
         ) : (
           <MotionMoon
             key="moon"
-            size={28}
-            className="text-neutral absolute"
+            className="text-neutral absolute w-7 h-7 md:w-6 md:h-6"
             variants={vortexVariants}
             initial="initial"
             animate="animate"

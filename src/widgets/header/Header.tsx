@@ -23,12 +23,20 @@ export default function Header({ className }: { className?: string }) {
       >
         <div className="hidden md:flex items-center gap-6 lg:gap-8">
           <Link href="/fights">
-            <ButtonWithIcon icon={Plane} className="text-neutral">
+            <ButtonWithIcon
+              icon={Plane}
+              className="text-neutral"
+              iconClasses="md:w-5 md:h-5 lg:w-6 lg:h-6"
+            >
               Find Flight
             </ButtonWithIcon>
           </Link>
           <Link href="/stays">
-            <ButtonWithIcon icon={BedDouble} className="text-neutral">
+            <ButtonWithIcon
+              icon={BedDouble}
+              className="text-neutral"
+              iconClasses="md:w-5 md:h-5 lg:w-6 lg:h-6"
+            >
               Find Stays
             </ButtonWithIcon>
           </Link>

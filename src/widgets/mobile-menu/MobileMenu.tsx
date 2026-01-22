@@ -34,6 +34,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             >
               <ButtonWithIcon
                 onClick={onClose}
+                size={28}
                 icon={X}
                 className="absolute top-4 right-4 p-0"
               />
@@ -42,12 +43,14 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                 <ul className="flex flex-col gap-6">
                   <li onClick={onClose}>
                     <Link href="/fights">
-                      <ButtonWithIcon icon={Plane}>Find Flight</ButtonWithIcon>
+                      <ButtonWithIcon icon={Plane} iconClasses="w-7 h-7">
+                        Find Flight
+                      </ButtonWithIcon>
                     </Link>
                   </li>
                   <li>
                     <Link href="/stays">
-                      <ButtonWithIcon icon={BedDouble}>
+                      <ButtonWithIcon icon={BedDouble} iconClasses="w-7 h-7">
                         Find Stays
                       </ButtonWithIcon>
                     </Link>
