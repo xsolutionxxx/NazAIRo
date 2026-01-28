@@ -38,8 +38,8 @@ export default function ParallaxScreen({ containerRef }: ParallaxScreenProps) {
 
   return (
     <>
-      <div className="absolute top-0 left-0 w-full h-full bg-linear-to-b from-dark/50 via-transparent to-transparent z-85" />
-      <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_center,transparent_55%,rgba(0,0,0,0.7))] z-1000" />
+      <div className="absolute top-0 left-0 inset-0 bg-linear-to-b from-black/50 via-transparent to-transparent z-85" />
+      <div className="absolute top-0 left-0 inset-0 bg-[radial-gradient(ellipse_at_center,transparent_55%,rgba(0,0,0,0.7))] z-1000" />
 
       <ParallaxItem
         {...commonParallax}
@@ -136,7 +136,7 @@ export default function ParallaxScreen({ containerRef }: ParallaxScreenProps) {
         speedY={0.07}
         speedZ={0}
         rotateSpeed={0.11}
-        className="top-[35.5%] left-1/2 z-90 text-neutral text-center whitespace-nowrap"
+        className="top-[35.5%] left-1/2 z-90 text-white text-center whitespace-nowrap"
       >
         <h2 className="font-thin text-[20px] xs:text-[28px] sm:text-[35px] md:text-[28px] lg:text-[35px] xl:text-[45px]">
           Helping Others
@@ -274,7 +274,7 @@ export default function ParallaxScreen({ containerRef }: ParallaxScreenProps) {
         speedX={0.12}
         speedY={0.01}
         speedZ={0}
-        className="flex items-center gap-2 bottom-5 left-[58.2%] text-neutral text-[10px] sm:text-xs lg:text-lg z-220"
+        className="flex items-center gap-2 bottom-5 left-[58.2%] text-white text-[10px] sm:text-xs lg:text-lg z-220"
       >
         <MapPin strokeWidth={1.5} size={20} />
         <span>China, Zhangjiajie</span>

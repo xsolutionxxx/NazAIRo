@@ -22,7 +22,7 @@ export const ButtonWithIcon = ({
   return (
     <button
       className={cn(
-        "flex items-center gap-3 md:gap-2 font-semibold text-lg md:text-xs lg:text-sm text-blackish-green lg:cursor-pointer lg:hover:text-salmon",
+        "flex items-center gap-3 md:gap-2 font-semibold text-lg md:text-xs lg:text-sm text-foreground cursor-pointer lg:hover:text-accent",
         className,
       )}
       {...props}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import Link from "next/link";
 import Image from "next/image";
@@ -16,6 +16,30 @@ import { ThemeToggleVortex } from "@/features/theme-toggle/ui/ThemeToggleVortex"
 export default function Header({ className }: { className?: string }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobileMenuOpen]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (isMobileMenuOpen && window.innerWidth >= 768) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, [isMobileMenuOpen]);
+
   return (
     <>
       <header
@@ -25,7 +49,7 @@ export default function Header({ className }: { className?: string }) {
           <Link href="/fights">
             <ButtonWithIcon
               icon={Plane}
-              className="text-neutral"
+              className="text-white"
               iconClasses="md:w-5 md:h-5 lg:w-6 lg:h-6"
             >
               Find Flight
@@ -34,17 +58,14 @@ export default function Header({ className }: { className?: string }) {
           <Link href="/stays">
             <ButtonWithIcon
               icon={BedDouble}
-              className="text-neutral"
+              className="text-white"
               iconClasses="md:w-5 md:h-5 lg:w-6 lg:h-6"
             >
               Find Stays
             </ButtonWithIcon>
           </Link>
         </div>
-        <Link
-          href="/"
-          className="absolute right-1/2 translate-x-1/2 lg:cursor-pointer"
-        >
+        <Link href="/" className="absolute right-1/2 translate-x-1/2">
           <Image
             src="/logo.svg"
             alt="Logotype NazAIRo"
@@ -54,29 +75,29 @@ export default function Header({ className }: { className?: string }) {
           />
         </Link>
         <div className="hidden md:flex items-center gap-8">
-          <ThemeToggleVortex className="text-neutral lg:cursor-pointer" />
+          <ThemeToggleVortex className="text-white cursor-pointer" />
           <Link href="/login">
             <Button
               variant="ghost"
-              className="p-0 font-semibold text-[10px] md:text-xs lg:text-sm text-neutral lg:cursor-pointer lg:hover:text-salmon"
+              className="p-0 font-semibold text-[10px] md:text-xs lg:text-sm text-white cursor-pointer lg:hover:text-accent hover:bg-transparent dark:hover:bg-transparent"
             >
               Login
             </Button>
           </Link>
           <Link href="/signup">
-            <Button className="md:px-4 md:py-3 lg:px-6 lg:py-5 bg-neutral rounded-lg font-semibold text-[10px] md:text-xs lg:text-sm lg:cursor-pointer lg:hover:text-neutral lg:hover:bg-salmon">
+            <Button className="md:px-4 md:py-3 lg:px-6 lg:py-5 bg-white text-[#112211] rounded-lg font-semibold text-[10px] md:text-xs lg:text-sm cursor-pointer lg:hover:bg-accent hover:bg-white">
               Sign Up
             </Button>
           </Link>
         </div>
 
-        <ThemeToggleVortex className="md:hidden" />
+        <ThemeToggleVortex className="md:hidden text-white" />
 
         <ButtonWithIcon
           onClick={() => setIsMobileMenuOpen(true)}
           icon={Menu}
           size={28}
-          className="md:hidden text-neutral"
+          className="md:hidden text-white"
         />
         <MobileMenu
           isOpen={isMobileMenuOpen}

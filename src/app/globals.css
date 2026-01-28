@@ -5,17 +5,15 @@
   --font-sans: var(--font-montserrat), ui-sans-serif, system-ui;
   --font-heading: var(--font-trade-gothic), sans-serif;
 
-  --color-bg: #fafbfc;
-  --color-neutral: #ffffff;
-  --color-dark: #000000;
-  --color-neutral-gray: #8f8c91;
-  --color-light-gray: #d2d1d3;
-  --color-light-green: #cdeae1;
-  --color-mint-green: #8dd3bb;
-  --color-blackish-green: #112211;
-  --color-salmon: #ff8682;
-  --color-fields: #1c1b1f;
-  --color-error: #fd736e;
+  --color-background: #fafbfc;
+  --color-surface: #ffffff;
+  --color-primary: #8dd3bb;
+  --color-primary-muted: #cdeae1;
+  --color-foreground: #112211;
+  --color-foreground-muted: #000000;
+  --color-input: #1c1b1f;
+  --color-accent: #ff8682;
+  --color-destructive: #fd736e;
 
   --breakpoint-xs: 425px;
   --breakpoint-2xl: 1440px;
@@ -23,7 +21,31 @@
 
 @layer base {
   .dark {
-    --color-bg: #121214;
+    --color-background: #090a0a;
+    --color-surface: #111212;
+    --color-primary: #8dd3bb;
+    --color-primary-muted: #1a2e28;
+    --color-foreground: #f1f1f1;
+    --color-foreground-muted: #a1a1aa;
+    --color-input: #2d2d30;
+    --color-accent: #ff9f9c;
+    --color-destructive: #ff453a;
+  }
+
+  body {
+    background-color: var(--color-background);
+    font-family: var(--font-sans);
+    font-weight: 400;
+    color: var(--color-foreground);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading);
   }
 }
 
@@ -55,19 +77,4 @@
   @variant 2xl {
     max-width: 1440px;
   }
-}
-
-body {
-  background-color: var(--color-bg);
-  font-family: var(--font-sans);
-  font-weight: 400;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: var(--font-heading);
 }

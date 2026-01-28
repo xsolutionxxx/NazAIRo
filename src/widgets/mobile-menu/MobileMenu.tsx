@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { X, Plane, BedDouble } from "lucide-react";
 
@@ -30,7 +32,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed top-0 right-0 z-10000 px-7 py-14 w-[75vw] xs:w-[65vw] h-screen bg-bg shadow-2xl"
+              className="fixed top-0 right-0 z-10000 px-7 py-14 w-[75vw] xs:w-[65vw] h-screen bg-background shadow-2xl"
             >
               <ButtonWithIcon
                 onClick={onClose}
@@ -58,15 +60,18 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                 </ul>
               </nav>
 
-              <div className="absolute bottom-10 left-7 right-7 flex items-center justify-center gap-4">
+              <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-max flex items-center justify-center bg-primary rounded-lg text-[#112211]">
                 <Link href="/login">
-                  <Button variant="ghost" className="p-0 font-semibold text-lg">
+                  <Button
+                    variant="ghost"
+                    className="px-4 font-semibold text-lg cursor-pointer hover:bg-transparent dark:hover:bg-transparent"
+                  >
                     Login
                   </Button>
                 </Link>
 
                 <Link href="/signup">
-                  <Button className="bg-blackish-green rounded-lg text-lg text-neutral">
+                  <Button className="bg-foreground rounded-lg font-semibold text-lg text-surface cursor-pointer hover:bg-foreground">
                     Sign Up
                   </Button>
                 </Link>

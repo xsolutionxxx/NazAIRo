@@ -55,7 +55,7 @@ export default function RootLayout({
       className={`${montserrat.variable} ${tradeGothic.variable} antialiased`}
       suppressHydrationWarning={true}
     >
-      <body>
+      <body suppressHydrationWarning={true}>
         <Providers>{children}</Providers>
       </body>
     </html>
