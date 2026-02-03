@@ -6,8 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Menu, Plane, BedDouble } from "lucide-react";
 
-import { Button } from "@shared/ui/button";
-import { ButtonWithIcon } from "@/shared/ui/buttonWithIcon";
+import { AppButton } from "@/shared/ui/appButton";
 
 import MobileMenu from "../mobile-menu/MobileMenu";
 
@@ -29,15 +28,18 @@ export default function Header({ className }: { className?: string }) {
   }, [isMobileMenuOpen]);
 
   useEffect(() => {
-    const handleResize = () => {
-      if (isMobileMenuOpen && window.innerWidth >= 768) {
+    const mediaQuery = window.matchMedia("(min-width: 768px)");
+
+    const handleResize = (e: MediaQueryListEvent | MediaQueryList) => {
+      if (e.matches && isMobileMenuOpen) {
         setIsMobileMenuOpen(false);
       }
     };
 
-    window.addEventListener("resize", handleResize);
+    handleResize(mediaQuery);
 
-    return () => window.removeEventListener("resize", handleResize);
+    mediaQuery.addEventListener("change", handleResize);
+    return () => mediaQuery.removeEventListener("change", handleResize);
   }, [isMobileMenuOpen]);
 
   return (
@@ -47,58 +49,62 @@ export default function Header({ className }: { className?: string }) {
       >
         <div className="hidden md:flex items-center gap-6 lg:gap-8">
           <Link href="/fights">
-            <ButtonWithIcon
+            <AppButton
+              intent="ghost"
               icon={Plane}
-              className="text-white"
-              iconClasses="md:w-5 md:h-5 lg:w-6 lg:h-6"
+              className="text-white md:hover:text-accent"
             >
               Find Flight
-            </ButtonWithIcon>
+            </AppButton>
           </Link>
           <Link href="/stays">
-            <ButtonWithIcon
+            <AppButton
+              intent="ghost"
               icon={BedDouble}
-              className="text-white"
-              iconClasses="md:w-5 md:h-5 lg:w-6 lg:h-6"
+              className="text-white md:hover:text-accent"
             >
               Find Stays
-            </ButtonWithIcon>
+            </AppButton>
           </Link>
         </div>
+
         <Link href="/" className="absolute right-1/2 translate-x-1/2">
           <Image
             src="/logo.svg"
             alt="Logotype NazAIRo"
             width={110}
             height={40}
-            className="md:h-8 lg:h-10"
+            className="w-full h-10 md:h-9 lg:h-10"
           />
         </Link>
+
         <div className="hidden md:flex items-center gap-8">
-          <ThemeToggleVortex className="text-white cursor-pointer" />
+          <ThemeToggleVortex className="text-white" />
           <Link href="/login">
-            <Button
-              variant="ghost"
-              className="p-0 font-semibold text-[10px] md:text-xs lg:text-sm text-white cursor-pointer lg:hover:text-accent hover:bg-transparent dark:hover:bg-transparent"
+            <AppButton
+              intent="ghost"
+              className="text-white md:hover:text-accent hover:bg-transparent"
             >
               Login
-            </Button>
+            </AppButton>
           </Link>
           <Link href="/signup">
-            <Button className="md:px-4 md:py-3 lg:px-6 lg:py-5 bg-white text-[#112211] rounded-lg font-semibold text-[10px] md:text-xs lg:text-sm cursor-pointer lg:hover:bg-accent hover:bg-white">
+            <AppButton className="bg-white text-[#112211] font-semibold  hover:bg-white">
               Sign Up
-            </Button>
+            </AppButton>
           </Link>
         </div>
 
         <ThemeToggleVortex className="md:hidden text-white" />
 
-        <ButtonWithIcon
-          onClick={() => setIsMobileMenuOpen(true)}
+        <AppButton
+          intent="ghost"
           icon={Menu}
-          size={28}
+          iconClasses="w-7 h-7"
           className="md:hidden text-white"
+          onClick={() => setIsMobileMenuOpen(true)}
         />
+
         <MobileMenu
           isOpen={isMobileMenuOpen}
           onClose={() => setIsMobileMenuOpen(false)}

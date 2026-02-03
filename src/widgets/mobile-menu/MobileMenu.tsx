@@ -6,7 +6,7 @@ import { X, Plane, BedDouble } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Portal } from "@/shared/ui/portal";
 import { Button } from "@shared/ui/button";
-import { ButtonWithIcon } from "@/shared/ui/buttonWithIcon";
+import { AppButton } from "@/shared/ui/appButton";
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -32,48 +32,46 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed top-0 right-0 z-10000 px-7 py-14 w-[75vw] xs:w-[65vw] h-screen bg-background shadow-2xl"
+              className="fixed top-0 right-0 z-10000 px-7 py-14 w-[70vw] xs:w-[60vw] h-screen bg-background shadow-2xl"
             >
-              <ButtonWithIcon
+              <AppButton
                 onClick={onClose}
-                size={28}
+                intent="ghost"
                 icon={X}
-                className="absolute top-4 right-4 p-0"
+                iconSize={28}
+                className="absolute top-5 right-4 p-0 h-auto"
               />
 
               <nav className="mt-8">
                 <ul className="flex flex-col gap-6">
                   <li onClick={onClose}>
                     <Link href="/fights">
-                      <ButtonWithIcon icon={Plane} iconClasses="w-7 h-7">
+                      <AppButton icon={Plane} intent="ghost">
                         Find Flight
-                      </ButtonWithIcon>
+                      </AppButton>
                     </Link>
                   </li>
                   <li>
                     <Link href="/stays">
-                      <ButtonWithIcon icon={BedDouble} iconClasses="w-7 h-7">
+                      <AppButton icon={BedDouble} intent="ghost">
                         Find Stays
-                      </ButtonWithIcon>
+                      </AppButton>
                     </Link>
                   </li>
                 </ul>
               </nav>
 
-              <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-max flex items-center justify-center bg-primary rounded-lg text-[#112211]">
+              <div className="absolute bottom-14 left-1/2 -translate-x-1/2 w-max flex items-center justify-center bg-primary rounded">
                 <Link href="/login">
-                  <Button
-                    variant="ghost"
-                    className="px-4 font-semibold text-lg cursor-pointer hover:bg-transparent dark:hover:bg-transparent"
-                  >
+                  <AppButton className="xs:px-7 font-semibold text-[#112211]">
                     Login
-                  </Button>
+                  </AppButton>
                 </Link>
 
                 <Link href="/signup">
-                  <Button className="bg-foreground rounded-lg font-semibold text-lg text-surface cursor-pointer hover:bg-foreground">
+                  <AppButton className="xs:px-5 bg-foreground font-semibold text-surface">
                     Sign Up
-                  </Button>
+                  </AppButton>
                 </Link>
               </div>
             </motion.div>
