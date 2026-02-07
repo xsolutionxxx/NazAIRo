@@ -2,6 +2,7 @@
 
 import { RefObject } from "react";
 import Image from "next/image";
+import { MapPin } from "lucide-react";
 
 import { useMouseFromCenter } from "@/shared/lib/hooks/use-mouse-from-center";
 import { ParallaxItem } from "@/shared/ui/parallax-item";
@@ -26,7 +27,6 @@ import mountain_1 from "@shared/assets/img/hero_parallax/mountain_1.png";
 import sun_rays from "@shared/assets/img/hero_parallax/sun_rays.png";
 import black_shadow from "@shared/assets/img/hero_parallax/black_shadow.png";
 import fog_1 from "@shared/assets/img/hero_parallax/fog_1.png";
-import { MapPin } from "lucide-react";
 
 interface ParallaxScreenProps {
   containerRef: RefObject<HTMLElement | null>;
