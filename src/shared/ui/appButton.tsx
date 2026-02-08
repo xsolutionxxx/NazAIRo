@@ -35,6 +35,7 @@ export const AppButton = ({
   className,
   intent,
   icon: Icon,
+  iconSize,
   iconClasses,
   children,
   ...props
@@ -43,6 +44,7 @@ export const AppButton = ({
     <button className={cn(appButtonVariants({ intent, className }))} {...props}>
       {Icon && (
         <Icon
+          size={iconSize || 24}
           strokeWidth={1.5}
           className={cn("w-5.5 h-5.5 md:w-6 md:h-6 shrink-0", iconClasses)}
         />

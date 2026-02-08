@@ -70,7 +70,7 @@ export default function Header({ className }: { className?: string }) {
 
         <Link href="/" className="absolute right-1/2 translate-x-1/2">
           <Image
-            src="/logo.svg"
+            src="/logo_light.svg"
             alt="Logotype NazAIRo"
             width={110}
             height={40}

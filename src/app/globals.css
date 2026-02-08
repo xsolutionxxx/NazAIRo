@@ -18,6 +18,8 @@
   --breakpoint-2xl: 1440px;
 }
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
   .dark {
     --color-background: #090a0a;
