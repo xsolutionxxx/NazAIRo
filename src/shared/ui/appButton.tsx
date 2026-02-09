@@ -13,7 +13,7 @@ const appButtonVariants = cva(
         ghost:
           "py-2 h-auto bg-transparent font-semibold hover:bg-transparent md:hover:text-primary",
         outline:
-          "py-3 bg-transparent border border-primary rounded hover:bg-accent",
+          "py-3.5 bg-transparent border border-primary rounded hover:bg-accent",
       },
     },
     defaultVariants: {

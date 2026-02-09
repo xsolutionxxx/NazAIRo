@@ -2,10 +2,15 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { cn } from "../lib/utils";
 
-export const Logo = () => {
+interface LogoProps {
+  className?: string,
+}
+
+export const Logo = ({ className }: LogoProps) => {
   return (
-    <Link href="/" className="inline-block transition-opacity hover:opacity-80">
+    <Link href="/" className={cn("inline-block transition-opacity hover:opacity-80", className)}>
       <Image
         src="/logo_dark.svg"
         alt="Logotype NazAIRo"

@@ -11,8 +11,8 @@ export default function AuthLayout({
   return (
     <section>
         <Container className="py-26 flex justify-between">
-            <main className="pr-26 w-3/5 flex flex-col items-start gap-16">
-                <Logo />
+            <main className="md:pr-26 w-full md:w-3/5 flex flex-col items-center md:items-start">
+                <Logo className="mb-16"/>
                 {children}
             </main>
             <aside className="w-2/5 hidden md:block">
