@@ -11,6 +11,7 @@
   --color-foreground: #112211;
   --color-foreground-muted: #000000;
   --color-input: #1c1b1f;
+  --color-input-secondary: #79747E;
   --color-accent: #ff8682;
   --color-destructive: #fd736e;
 
@@ -21,6 +22,16 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover, 
+  input:-webkit-autofill:focus, 
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px var(--color-background) inset !important;
+    -webkit-text-fill-color: var(--color-input) !important;
+    caret-color: var(--color-primary);
+  }
+
+
   .dark {
     --color-background: #090a0a;
     --color-surface: #111212;
@@ -28,7 +39,8 @@
     --color-primary-muted: #1a2e28;
     --color-foreground: #f1f1f1;
     --color-foreground-muted: #a1a1aa;
-    --color-input: #2d2d30;
+    --color-input: #e5e5e5;
+    --color-input-secondary: #e5e4e6;
     --color-accent: #ff9f9c;
     --color-destructive: #ff453a;
   }

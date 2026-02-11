@@ -43,10 +43,9 @@ export default function AuthVisualBanner() {
   }, [api, onSelect]);
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative w-full max-h-200 rounded-4xl overflow-hidden">
       <Carousel 
         setApi={setApi} 
-        className="w-full h-full" 
         opts={{ loop: true }}
         plugins={[
           Autoplay({ delay: 5000, stopOnInteraction: false }),
@@ -55,12 +54,12 @@ export default function AuthVisualBanner() {
       >
         <CarouselContent>
           {bannerImages.map((image, index) => (
-            <CarouselItem key={index} className="relative w-full max-h-200 aspect-5/6">
+            <CarouselItem key={index}>
               <Image
                 src={image}
                 alt={`Slide ${index + 1}`}
                 priority={index === 0}
-                className="h-full object-cover rounded-4xl"
+                className="aspect-3/8 lg:aspect-4/8 xl:aspect-3/4 h-full object-cover rounded-4xl"
               />
             </CarouselItem>
           ))}

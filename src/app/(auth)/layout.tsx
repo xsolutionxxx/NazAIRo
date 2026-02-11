@@ -10,12 +10,12 @@ export default function AuthLayout({
 }) {
   return (
     <section>
-        <Container className="py-26 flex justify-between">
-            <main className="md:pr-26 w-full md:w-3/5 flex flex-col items-center md:items-start">
+        <Container className="py-26 flex justify-between gap-12 lg:gap-26">
+            <main className="w-full md:max-w-160 md:w-3/5 flex flex-col items-center md:items-start">
                 <Logo className="mb-16"/>
                 {children}
             </main>
-            <aside className="w-2/5 hidden md:block">
+            <aside className="w-3/5 hidden md:block">
                 <AuthVisualBanner />
             </aside>
         </Container>    
