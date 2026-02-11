@@ -14,8 +14,8 @@ const appButtonVariants = cva(
           "py-2 h-auto bg-transparent font-semibold hover:bg-transparent md:hover:text-primary",
         outline:
           "py-3.5 bg-transparent border border-primary rounded hover:bg-accent",
-        empty: "p-0 bg-transparent"
-        },
+        empty: "p-0 bg-transparent",
+      },
     },
     defaultVariants: {
       intent: "primary",

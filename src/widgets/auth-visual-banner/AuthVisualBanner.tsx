@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
@@ -44,13 +44,10 @@ export default function AuthVisualBanner() {
 
   return (
     <div className="relative w-full max-h-200 rounded-4xl overflow-hidden">
-      <Carousel 
-        setApi={setApi} 
+      <Carousel
+        setApi={setApi}
         opts={{ loop: true }}
-        plugins={[
-          Autoplay({ delay: 5000, stopOnInteraction: false }),
-          Fade()
-        ]}
+        plugins={[Autoplay({ delay: 5000, stopOnInteraction: false }), Fade()]}
       >
         <CarouselContent>
           {bannerImages.map((image, index) => (
@@ -73,9 +70,7 @@ export default function AuthVisualBanner() {
             onClick={() => api?.scrollTo(index)}
             className={cn(
               "h-2.5 rounded-full cursor-pointer transition-all duration-300",
-              index === selectedIndex 
-                ? "w-8 bg-primary" 
-                : "w-2.5 bg-white"
+              index === selectedIndex ? "w-8 bg-primary" : "w-2.5 bg-white",
             )}
             aria-label={`Go to slide ${index + 1}`}
           />
