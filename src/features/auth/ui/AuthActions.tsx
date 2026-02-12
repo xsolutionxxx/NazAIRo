@@ -1,16 +1,19 @@
+"use client";
+
 import { AppButton } from "@/shared/ui/appButton";
 import Link from "next/link";
 
 interface AuthActionsProps {
   type: "login" | "sign up";
+  isLoading?: boolean;
 }
 
-export default function AuthActions({ type }: AuthActionsProps) {
+export default function AuthActions({ type, isLoading }: AuthActionsProps) {
   const isLogin = type === "login";
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <AppButton type="submit" className="w-full">
+      <AppButton type="submit" disabled={isLoading} className="w-full">
         {isLogin ? "Login" : "Sign Up"}
       </AppButton>
 
@@ -18,7 +21,7 @@ export default function AuthActions({ type }: AuthActionsProps) {
         {isLogin ? "Don't have an account? " : "Already have an account? "}
         <Link
           href={isLogin ? "/sign-up" : "/login"}
-          className="text-accent hover:underline transition-all"
+          className="text-accent transition-all hover:underline "
         >
           {isLogin ? "Sign Up" : "Login"}
         </Link>

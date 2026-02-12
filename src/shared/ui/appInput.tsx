@@ -1,7 +1,8 @@
 import * as React from "react";
-import { LucideIcon, OctagonAlert } from "lucide-react";
+import { LucideIcon } from "lucide-react";
 
 import { cn } from "@/shared/lib/utils";
+import { InputErrorMessage } from "@/shared/ui/inputErrorMessage";
 
 interface AppInputProps extends React.ComponentPropsWithRef<"input"> {
   label?: string;
@@ -56,25 +57,27 @@ export const AppInput = React.forwardRef<HTMLInputElement, AppInputProps>(
           htmlFor={inputId}
           className={cn(
             "absolute -top-2 left-3 px-1 bg-background text-sm text-input capitalize group-focus-within:text-primary",
-            errorMsg && " group-focus-within:text-destructive",
+            errorMsg && "text-destructive group-focus-within:text-destructive",
           )}
         >
           {label}
         </label>
         <input
-          ref={ref}
           id={inputId}
           name={name}
           type={type}
           data-slot="input"
+          ref={ref}
           aria-invalid={!!errorMsg}
           className={cn(
-            "placeholder:text-input-secondary selection:bg-primary dark:selection:text-primary-muted px-3 py-1 w-full min-w-0 h-14 bg-transparent border-2 border-input-secondary rounded text-base text-input outline-none transition-all disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 autofill:bg-transparent",
+            "py-1 px-3 w-full min-w-0 h-14 bg-transparent border-2 border-input-secondary rounded text-base text-input outline-none transition-all placeholder:text-input-secondary autofill:bg-transparent",
+            "selection:bg-primary dark:selection:text-primary-muted",
             "focus-visible:border-primary",
+            "disabled:opacity-50 disabled:pointer-events-none disabled:cursor-not-allowed",
+            "aria-invalid:border-destructive",
             errorMsg && "border-destructive focus-visible:border-destructive",
             iconStart && "pl-12",
             (iconEnd || children) && "pr-12",
-            "aria-invalid:border-destructive",
             className,
           )}
           {...props}
@@ -89,12 +92,7 @@ export const AppInput = React.forwardRef<HTMLInputElement, AppInputProps>(
             </div>
           )
         )}
-        {errorMsg && (
-          <span className="absolute -bottom-1 left-4 flex items-center gap-1 text-sm text-destructive">
-            <OctagonAlert className="w-3.5 h-3.5 text-destructive" />
-            {errorMsg}
-          </span>
-        )}
+        {errorMsg && <InputErrorMessage message={errorMsg} />}
       </div>
     );
   },

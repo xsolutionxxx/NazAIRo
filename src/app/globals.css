@@ -9,6 +9,7 @@
   --color-primary: #8dd3bb;
   --color-primary-muted: #cdeae1;
   --color-foreground: #112211;
+  --color-foreground-static: #112211;
   --color-foreground-muted: #000000;
   --color-input: #1c1b1f;
   --color-input-secondary: #79747E;
@@ -22,9 +23,10 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
+
   input:-webkit-autofill,
-  input:-webkit-autofill:hover, 
-  input:-webkit-autofill:focus, 
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
   input:-webkit-autofill:active {
     -webkit-box-shadow: 0 0 0 30px var(--color-background) inset !important;
     -webkit-text-fill-color: var(--color-input) !important;

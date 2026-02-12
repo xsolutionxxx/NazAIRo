@@ -4,16 +4,17 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/shared/lib/utils";
 
 const appButtonVariants = cva(
-  "inline-flex justify-center items-center gap-1 lg:gap-2 font-medium text-sm text-foreground cursor-pointer transition-all active:scale-95 cursor-pointer disabled:opacity-50",
+  "inline-flex justify-center items-center gap-1 lg:gap-2 font-medium text-sm text-foreground outline-accent cursor-pointer transition-all active:scale-95" +
+    "disabled:text-[#8F8C91] disabled:cursor-not-allowed disabled:active:scale-100",
   {
     variants: {
       intent: {
         primary:
-          "py-3 px-3 md:py-2.5 lg:px-4 bg-primary rounded md:hover:bg-accent",
+          "py-3 px-3 md:py-2.5 lg:px-4 text-[#112211] bg-primary rounded md:hover:bg-[#9BE0C8] disabled:bg-[#D2D1D3] disabled:hover:bg-[#D2D1D3] focus-visible:outline-primary focus-visible:outline-offset-2",
         ghost:
-          "py-2 h-auto bg-transparent font-semibold hover:bg-transparent md:hover:text-primary",
+          "py-2 h-auto bg-transparent font-semibold md:hover:text-[#9BE0C8]",
         outline:
-          "py-3.5 bg-transparent border border-primary rounded hover:bg-accent",
+          "py-3.5 bg-transparent border border-primary rounded md:hover:text-[#9BE0C8] focus-visible:outline-primary",
         empty: "p-0 bg-transparent",
       },
     },

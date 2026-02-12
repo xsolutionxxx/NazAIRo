@@ -5,10 +5,9 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence, Variants } from "motion/react";
 import { Sun, Moon } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
-import { AppButton } from "@/shared/ui/appButton";
 
-const MotionSun = motion(Sun);
-const MotionMoon = motion(Moon);
+const MotionSun = motion.create(Sun);
+const MotionMoon = motion.create(Moon);
 
 const vortexVariants: Variants = {
   initial: {
@@ -61,7 +60,7 @@ export const ThemeToggleVortex = ({ className }: { className?: string }) => {
     <button
       onClick={() => setTheme(isDark ? "light" : "dark")}
       className={cn(
-        "relative w-7 h-7 md:w-8 md:h-8 lg:w-9 lg:h-9 flex items-center justify-center rounded-full cursor-pointer transition-colors  md:hover:bg-black/5 lg:dark:hover:bg-white/10",
+        "relative w-7 h-7 md:w-8.5 md:h-8.5 lg:w-9 lg:h-9 flex items-center justify-center rounded-full cursor-pointer transition-colors md:hover:bg-black/10 lg:dark:hover:bg-white/10",
         className,
       )}
       aria-label="Toggle Theme"

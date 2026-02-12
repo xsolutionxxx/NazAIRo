@@ -49,20 +49,12 @@ export default function Header({ className }: { className?: string }) {
       >
         <div className="hidden md:flex items-center gap-6 lg:gap-8">
           <Link href="/fights">
-            <AppButton
-              intent="ghost"
-              icon={Plane}
-              className="text-white md:hover:text-accent"
-            >
+            <AppButton intent="ghost" icon={Plane} className="text-white">
               Find Flight
             </AppButton>
           </Link>
           <Link href="/stays">
-            <AppButton
-              intent="ghost"
-              icon={BedDouble}
-              className="text-white md:hover:text-accent"
-            >
+            <AppButton intent="ghost" icon={BedDouble} className="text-white">
               Find Stays
             </AppButton>
           </Link>
@@ -81,17 +73,12 @@ export default function Header({ className }: { className?: string }) {
         <div className="hidden md:flex items-center gap-8">
           <ThemeToggleVortex className="text-white" />
           <Link href="/login">
-            <AppButton
-              intent="ghost"
-              className="text-white md:hover:text-accent hover:bg-transparent"
-            >
+            <AppButton intent="ghost" className="text-white">
               Login
             </AppButton>
           </Link>
-          <Link href="/signup">
-            <AppButton className="bg-white text-[#112211] font-semibold  hover:bg-white">
-              Sign Up
-            </AppButton>
+          <Link href="/sign-up">
+            <AppButton className="bg-white font-semibold">Sign Up</AppButton>
           </Link>
         </div>
 

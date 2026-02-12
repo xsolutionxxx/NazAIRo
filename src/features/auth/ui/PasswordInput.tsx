@@ -14,10 +14,10 @@ export default function PasswordInput(
     <>
       <AppInput {...props} type={showPassword ? "text" : "password"}>
         <AppButton
-          intent="empty"
-          icon={showPassword ? Eye : EyeOff}
           type="button"
           onClick={() => setShowPassword(!showPassword)}
+          intent="empty"
+          icon={showPassword ? Eye : EyeOff}
           className="translate-all"
         />
       </AppInput>
