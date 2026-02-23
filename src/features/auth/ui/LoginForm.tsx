@@ -13,22 +13,16 @@ import PasswordInput from "./PasswordInput";
 const schema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email format"),
   password: z.string().min(8, "Password must be at least 8 characters"),
-  rememberMe: z.boolean().default(false),
+  rememberMe: z.boolean(),
 });
 
 type LoginFormFields = z.infer<typeof schema>;
-
-/* type LoginFormFields = {
-  email: string;
-  password: string;
-  rememberMe: boolean;
-}; */
 
 export default function LoginForm() {
   const {
     register,
     handleSubmit,
-    setError,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormFields>({
     defaultValues: {
@@ -39,16 +33,9 @@ export default function LoginForm() {
     resolver: zodResolver(schema),
   });
 
-  const onSubmit: SubmitHandler<LoginFormFields> = async (data) => {
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      /* throw new Error(); */
-      console.log(data);
-    } catch {
-      setError("email", {
-        message: "This email is already taken",
-      });
-    }
+  const onSubmit: SubmitHandler<LoginFormFields> = (data) => {
+    console.log(data);
+    reset();
   };
 
   return (
@@ -79,7 +66,6 @@ export default function LoginForm() {
           id="remember-me"
           name="rememberMe"
           label="Remember me"
-          errorMsg={errors.rememberMe && errors.rememberMe?.message}
         />
         <Link
           href="/"
