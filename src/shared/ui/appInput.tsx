@@ -8,6 +8,7 @@ interface AppInputProps extends React.ComponentPropsWithRef<"input"> {
   label?: string;
   errorMsg?: string;
   containerClassName?: string;
+  startContent?: React.ReactNode;
   iconStart?: LucideIcon;
   iconEnd?: LucideIcon;
 }
@@ -41,6 +42,7 @@ export const AppInput = React.forwardRef<HTMLInputElement, AppInputProps>(
       label,
       errorMsg,
       containerClassName,
+      startContent,
       iconStart,
       iconEnd,
       children,
@@ -56,12 +58,14 @@ export const AppInput = React.forwardRef<HTMLInputElement, AppInputProps>(
         <label
           htmlFor={inputId}
           className={cn(
-            "absolute -top-2 left-3 px-1 bg-background text-sm text-input capitalize group-focus-within:text-primary",
-            errorMsg && "text-destructive group-focus-within:text-destructive",
+            "absolute -top-2 left-3 px-1 bg-background text-sm text-input capitalize group-hover:text-primary group-focus-within:text-primary",
+            errorMsg &&
+              "text-destructive group-hover:text-destructive group-focus-within:text-destructive",
           )}
         >
           {label}
         </label>
+        {startContent}
         <input
           id={inputId}
           name={name}
@@ -70,7 +74,7 @@ export const AppInput = React.forwardRef<HTMLInputElement, AppInputProps>(
           ref={ref}
           aria-invalid={!!errorMsg}
           className={cn(
-            "py-1 px-3 w-full min-w-0 h-14 bg-transparent border-2 border-input-secondary rounded text-base text-input outline-none transition-all placeholder:text-input-secondary autofill:bg-transparent",
+            "py-1 px-3 w-full min-w-0 h-14 bg-transparent border-2 border-input-secondary rounded text-base text-input outline-none transition-all hover:border-primary placeholder:text-input-secondary autofill:bg-transparent",
             "selection:bg-primary dark:selection:text-primary-muted",
             "focus-visible:border-primary",
             "disabled:opacity-50 disabled:pointer-events-none disabled:cursor-not-allowed",

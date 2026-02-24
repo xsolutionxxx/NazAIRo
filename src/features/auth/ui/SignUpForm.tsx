@@ -1,23 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { AppInput } from "@shared/ui/appInput";
 import { AppCheckbox } from "@shared/ui/appCheckbox";
+import { PhoneField } from "./PhoneInput";
 import AuthActions from "./AuthActions";
+import PasswordInput from "./PasswordInput";
 
 const schema = z
   .object({
-    name: z.string().min(1, "Name is required"),
-    lastName: z.string(),
-    email: z.string().email("Invalid email format"),
+    name: z.string().trim().min(1, "Name is required"),
+    lastName: z.string().trim().min(1, "Last name is required"),
+    email: z.string().min(1, "Email is required").email("Invalid email format"),
     phone: z.e164(),
     password: z.string().min(8, "Password must be at least 8 characters"),
-    confirmPassword: z.string(),
-    terms: z.boolean(),
+    confirmPassword: z.string().min(1, "Please confirm your password"),
+    terms: z.boolean().refine((val) => val === true, {
+      message: "You must agree to the terms",
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Password do not match",
@@ -31,7 +35,9 @@ export default function SignUpForm() {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
+    control,
+    trigger,
+    formState: { errors, isSubmitting },
   } = useForm<SignUpFormFields>({
     defaultValues: {
       name: "",
@@ -42,24 +48,27 @@ export default function SignUpForm() {
       confirmPassword: "",
       terms: false,
     },
+    mode: "onSubmit",
+    reValidateMode: "onChange",
     resolver: zodResolver(schema),
   });
 
   const onSubmit: SubmitHandler<SignUpFormFields> = (data) => {
-    console.log(data);
+    const { confirmPassword, ...dataToSubmit } = data;
+
+    console.log(dataToSubmit);
     reset();
   };
 
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="mb-10 w-full flex flex-col gap-6"
+      className="mb-10 w-full flex flex-col gap-10"
     >
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-2 gap-y-10 gap-x-6">
         <AppInput
           {...register("name")}
           id="sign-up-first-name"
-          name="first-name"
           placeholder="Your first name"
           label="first name"
           errorMsg={errors.name && errors.name?.message}
@@ -67,45 +76,50 @@ export default function SignUpForm() {
         <AppInput
           {...register("lastName")}
           id="sign-up-last-name"
-          name="last-name"
           placeholder="Your last name"
           label="last name"
+          errorMsg={errors.lastName && errors.lastName?.message}
         />
         <AppInput
           {...register("email")}
           id="sign-up-email"
-          name="email"
           placeholder="Your email"
           label="Email"
+          errorMsg={errors.email && errors.email?.message}
         />
-        <AppInput
-          {...register("phone")}
-          id="sign-up-phone"
+        <Controller
           name="phone"
-          placeholder="Your number"
-          label="phone number"
+          control={control}
+          render={({ field, fieldState }) => (
+            <PhoneField {...field} errorMsg={fieldState.error?.message} />
+          )}
         />
       </div>
 
-      <AppInput
+      <PasswordInput
         {...register("password")}
         id="sign-up-password"
-        name="password"
         placeholder="Come up with a password"
         label="Password"
+        errorMsg={errors.password && errors.password?.message}
       />
-      <AppInput
+      <PasswordInput
         {...register("confirmPassword")}
         id="sign-up-confirm-password"
-        name="confirm-password"
+        onChange={(e) => {
+          register("password").onChange(e);
+          trigger("confirmPassword");
+        }}
         placeholder="Repeat the password"
         label="confirm password"
+        errorMsg={errors.confirmPassword && errors.confirmPassword?.message}
       />
 
       <AppCheckbox
         {...register("terms")}
         id="terms"
         name="terms"
+        errorMsg={errors.terms && errors.terms?.message}
         label={
           <span className="text-sm">
             I agree to all the{" "}
@@ -126,7 +140,7 @@ export default function SignUpForm() {
         }
       />
 
-      <AuthActions type="sign up" />
+      <AuthActions type="sign up" isLoading={isSubmitting} />
     </form>
   );
 }
