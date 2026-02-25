@@ -23,7 +23,7 @@ export const AppCheckbox = React.forwardRef<HTMLInputElement, AppCheckboxProps>(
         <label
           htmlFor={checkboxId}
           className={cn(
-            "flex items-center gap-2.5 cursor-pointer",
+            "w-fit flex items-start gap-2.5 cursor-pointer",
             containerClassName,
           )}
         >
@@ -38,7 +38,7 @@ export const AppCheckbox = React.forwardRef<HTMLInputElement, AppCheckboxProps>(
           />
           <div
             className={cn(
-              "relative h-4.5 w-4.5 border border-input-secondary rounded cursor-pointer pointer-events-none transition-all",
+              "relative h-4.5 w-4.5 shrink-0 border border-input-secondary rounded cursor-pointer pointer-events-none transition-all",
               "flex items-center justify-center",
               "peer-focus-visible:outline-2 peer-focus-visible:outline-offset peer-focus-visible:outline-primary ",
               "peer-checked:[&_svg]:block peer-checked:bg-primary",

@@ -1,7 +1,8 @@
 "use client";
 
-import { AppButton } from "@/shared/ui/appButton";
 import Link from "next/link";
+
+import { AppButton } from "@/shared/ui/appButton";
 
 interface AuthActionsProps {
   type: "login" | "sign up";
