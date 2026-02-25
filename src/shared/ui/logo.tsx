@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import Image from "next/image";
 
 import { cn } from "../lib/utils";
 
@@ -14,7 +14,7 @@ export const Logo = ({ className }: LogoProps) => {
     <Link
       href="/"
       className={cn(
-        "inline-block transition-opacity hover:opacity-80",
+        "inline-block transition-opacity hover:opacity-90",
         className,
       )}
     >

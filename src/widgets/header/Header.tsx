@@ -6,14 +6,50 @@ import Link from "next/link";
 import Image from "next/image";
 import { Menu, Plane, BedDouble } from "lucide-react";
 
+import { Container } from "@shared/ui/container";
 import { AppButton } from "@/shared/ui/appButton";
+import { Logo } from "@shared/ui/logo";
 
 import MobileMenu from "../mobile-menu/MobileMenu";
 
+import { cn } from "@shared/lib/utils";
+
 import { ThemeToggleVortex } from "@/features/theme-toggle/ui/ThemeToggleVortex";
 
-export default function Header({ className }: { className?: string }) {
+interface HeaderProps {
+  className?: string;
+  variant?: "hero" | "default";
+}
+
+export default function Header({
+  className,
+  variant = "default",
+}: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const isHero = variant === "hero";
+
+  const logotype = isHero ? (
+    <Link
+      href="/"
+      className="absolute right-1/2 translate-x-1/2 inline-block transition-opacity hover:opacity-90"
+    >
+      <Image
+        src="/logo_light.svg"
+        alt="Logotype NazAIRo"
+        width={110}
+        height={40}
+        className="w-full h-10 md:h-9 lg:h-10"
+      />
+    </Link>
+  ) : (
+    <Logo className="absolute right-1/2 translate-x-1/2" />
+  );
+  const background = isHero ? "bg-transparent" : "bg-surface shadow-lg";
+  const bgBtnColor = isHero
+    ? "bg-white"
+    : "bg-foreground text-surface hover:text-[#112211]";
+  const textColor = isHero ? "text-white" : "text-foreground";
 
   useEffect(() => {
     if (isMobileMenuOpen) {
@@ -45,57 +81,55 @@ export default function Header({ className }: { className?: string }) {
   return (
     <>
       <header
-        className={`relative py-5 lg:py-6 xl:py-7 flex justify-between items-center ${className}`}
+        className={cn(
+          `relative py-5 lg:py-6 xl:py-7 ${background} ${className}`,
+        )}
       >
-        <div className="hidden md:flex items-center gap-6 lg:gap-8">
-          <Link href="/fights">
-            <AppButton intent="ghost" icon={Plane} className="text-white">
-              Find Flight
-            </AppButton>
-          </Link>
-          <Link href="/stays">
-            <AppButton intent="ghost" icon={BedDouble} className="text-white">
-              Find Stays
-            </AppButton>
-          </Link>
-        </div>
+        <Container className="flex justify-between items-center">
+          <div className="hidden md:flex items-center gap-6 lg:gap-8">
+            <Link href="/fights">
+              <AppButton intent="ghost" icon={Plane} className={textColor}>
+                Find Flight
+              </AppButton>
+            </Link>
+            <Link href="/stays">
+              <AppButton intent="ghost" icon={BedDouble} className={textColor}>
+                Find Stays
+              </AppButton>
+            </Link>
+          </div>
 
-        <Link href="/" className="absolute right-1/2 translate-x-1/2">
-          <Image
-            src="/logo_light.svg"
-            alt="Logotype NazAIRo"
-            width={110}
-            height={40}
-            className="w-full h-10 md:h-9 lg:h-10"
+          {logotype}
+
+          <div className="hidden md:flex items-center gap-8">
+            <ThemeToggleVortex className={textColor} />
+            <Link href="/login">
+              <AppButton intent="ghost" className={textColor}>
+                Login
+              </AppButton>
+            </Link>
+            <Link href="/sign-up">
+              <AppButton className={cn(`font-semibold ${bgBtnColor}`)}>
+                Sign Up
+              </AppButton>
+            </Link>
+          </div>
+
+          <ThemeToggleVortex className={cn(`md:hidden ${textColor}`)} />
+
+          <AppButton
+            intent="ghost"
+            icon={Menu}
+            iconClasses="w-7 h-7"
+            className={cn(`md:hidden ${textColor}`)}
+            onClick={() => setIsMobileMenuOpen(true)}
           />
-        </Link>
 
-        <div className="hidden md:flex items-center gap-8">
-          <ThemeToggleVortex className="text-white" />
-          <Link href="/login">
-            <AppButton intent="ghost" className="text-white">
-              Login
-            </AppButton>
-          </Link>
-          <Link href="/sign-up">
-            <AppButton className="bg-white font-semibold">Sign Up</AppButton>
-          </Link>
-        </div>
-
-        <ThemeToggleVortex className="md:hidden text-white" />
-
-        <AppButton
-          intent="ghost"
-          icon={Menu}
-          iconClasses="w-7 h-7"
-          className="md:hidden text-white"
-          onClick={() => setIsMobileMenuOpen(true)}
-        />
-
-        <MobileMenu
-          isOpen={isMobileMenuOpen}
-          onClose={() => setIsMobileMenuOpen(false)}
-        />
+          <MobileMenu
+            isOpen={isMobileMenuOpen}
+            onClose={() => setIsMobileMenuOpen(false)}
+          />
+        </Container>
       </header>
     </>
   );
