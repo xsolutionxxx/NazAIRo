@@ -6,7 +6,7 @@ import { UserAvatar } from "@/shared/ui/userAvatar";
 import { AppButton } from "@/shared/ui/appButton";
 import { cn } from "@shared/lib/utils";
 
-export function EditableAvatar() {
+export default function EditableAvatar() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -36,20 +36,17 @@ export function EditableAvatar() {
         />
 
         <input
-          type="file"
           ref={fileInputRef}
           onChange={handleFileChange}
-          className="hidden"
+          type="file"
           accept="image/*"
+          className="hidden"
         />
 
         <AppButton
-          icon={Pencil}
           onClick={handleEditClick}
-          className={cn(
-            "absolute bottom-1 right-1 p-2.5 lg:px-2.5 rounded-full bg-accent",
-            "hover:scale-105 transition-transform active:scale-95",
-          )}
+          icon={Pencil}
+          className="absolute bottom-1 right-1 p-2.5 lg:px-2.5 rounded-full bg-accent"
         />
       </div>
 
