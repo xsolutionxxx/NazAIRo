@@ -7,11 +7,9 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <section>
+    <main>
       <Header />
-      <main>
-        <Container>{children}</Container>
-      </main>
-    </section>
+      <Container>{children}</Container>
+    </main>
   );
 }
