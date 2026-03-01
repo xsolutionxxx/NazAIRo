@@ -38,7 +38,7 @@ export default function ChangedCover({
   };
 
   return (
-    <>
+    <div className="realtive mb-50">
       <div
         className={cn(
           `relative w-full h-50 bg-center bg-cover bg-no-repeat`,
@@ -61,12 +61,12 @@ export default function ChangedCover({
         <AppButton
           onClick={handleChangeClick}
           icon={CloudUpload}
-          className="absolute right-3 bottom-4 z-30"
+          className="absolute bottom-4 right-3 p-2 z-30"
         >
-          Upload new cover
+          {/* Upload new cover */}
         </AppButton>
         {children}
       </Container>
-    </>
+    </div>
   );
 }

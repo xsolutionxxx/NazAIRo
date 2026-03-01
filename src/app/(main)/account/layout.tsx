@@ -1,5 +1,5 @@
 import { Container } from "@shared/ui/container";
-import AccountHeader from "@/widgets/account-header/AccountHeader";
+import AccountHeader from "@widgets/account-header/AccountHeader";
 
 export default function AccountLayout({
   children,
