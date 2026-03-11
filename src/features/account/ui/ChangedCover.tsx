@@ -61,7 +61,7 @@ export default function ChangedCover({
         <AppButton
           onClick={handleChangeClick}
           icon={CloudUpload}
-          className="absolute bottom-4 right-3 p-2 z-30"
+          className="absolute left-4 -top-45 p-2 z-30"
         >
           {/* Upload new cover */}
         </AppButton>

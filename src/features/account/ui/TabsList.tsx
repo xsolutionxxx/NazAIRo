@@ -18,16 +18,17 @@ export default function TabsList({ className }: { className?: string }) {
   return (
     <Container>
       <div
-        className={`relative py-4 px-6 h-20 grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-6 bg-surface rounded-2xl ${className}`}
+        className={`py-4 px-6 min-h-20 grid grid-cols-3 items-center gap-y-10 gap-x-6 bg-surface rounded-2xl ${className}`}
       >
-        {TABS.map((tab) => {
+        {TABS.map((tab, index) => {
           return (
-            <>
-              <Link key={tab.href} href={tab.href}>
-                <TabItem label={tab.label} isActive={pathname === tab.href} />
-              </Link>
-              <div className="w-px h-full bg-[#D7E2EE] last:hidden" />
-            </>
+            <Link
+              key={tab.href}
+              href={tab.href}
+              className={`${index !== TABS.length - 1 && "pr-6 border-r border-[#D7E2EE]"}`}
+            >
+              <TabItem label={tab.label} isActive={pathname === tab.href} />
+            </Link>
           );
         })}
       </div>

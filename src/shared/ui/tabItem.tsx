@@ -18,7 +18,7 @@ export function TabItem({
   return (
     <AppButton
       intent="ghost"
-      className={cn(`relative w-full hover:scale-100`, className)}
+      className={cn(`relative w-full md:hover:scale-100`, className)}
     >
       {label}
       {isActive && (

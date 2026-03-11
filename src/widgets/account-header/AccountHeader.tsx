@@ -10,7 +10,7 @@ export default function AccountHeader() {
           <EditableAvatar />
         </div>
       </ChangedCover>
-      <TabsList />
+      <TabsList className="mb-10" />
     </>
   );
 }

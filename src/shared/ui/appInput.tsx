@@ -8,6 +8,7 @@ interface AppInputProps extends React.ComponentPropsWithRef<"input"> {
   label?: string;
   errorMsg?: string;
   containerClassName?: string;
+  labelClassName?: string;
   startContent?: React.ReactNode;
   iconStart?: LucideIcon;
   iconEnd?: LucideIcon;
@@ -42,6 +43,7 @@ export const AppInput = React.forwardRef<HTMLInputElement, AppInputProps>(
       label,
       errorMsg,
       containerClassName,
+      labelClassName,
       startContent,
       iconStart,
       iconEnd,
@@ -62,6 +64,7 @@ export const AppInput = React.forwardRef<HTMLInputElement, AppInputProps>(
             "group-hover:text-primary group-focus-within:text-primary",
             errorMsg &&
               "text-destructive group-hover:text-destructive group-focus-within:text-destructive",
+            labelClassName,
           )}
         >
           {label}

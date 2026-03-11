@@ -4,7 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/shared/lib/utils";
 
 const appButtonVariants = cva(
-  "inline-flex justify-center items-center gap-1 lg:gap-2 font-medium text-sm text-foreground outline-accent cursor-pointer transition-all hover:scale-103 active:scale-95" +
+  "inline-flex justify-center items-center gap-1 lg:gap-2 font-medium text-sm text-foreground outline-accent cursor-pointer transition-all md:hover:scale-103 active:scale-95" +
     "disabled:text-[#8F8C91] disabled:cursor-not-allowed disabled:active:scale-100",
   {
     variants: {
@@ -29,7 +29,6 @@ interface AppButtonProps
     React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof appButtonVariants> {
   icon?: LucideIcon;
-  iconSize?: number;
   iconClasses?: string;
 }
 
@@ -37,7 +36,6 @@ export const AppButton = ({
   className,
   intent,
   icon: Icon,
-  iconSize,
   iconClasses,
   children,
   ...props
@@ -46,9 +44,8 @@ export const AppButton = ({
     <button className={cn(appButtonVariants({ intent, className }))} {...props}>
       {Icon && (
         <Icon
-          size={iconSize || 24}
           strokeWidth={1.5}
-          className={cn("w-5.5 h-5.5 md:w-6 md:h-6 shrink-0", iconClasses)}
+          className={cn("h-5.5 w-5.5 md:h-6 md:w-6 shrink-0", iconClasses)}
         />
       )}
       {children}

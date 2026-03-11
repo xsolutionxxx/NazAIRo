@@ -5,7 +5,6 @@ import { X, Plane, BedDouble } from "lucide-react";
 
 import { motion, AnimatePresence } from "motion/react";
 import { Portal } from "@/shared/ui/portal";
-import { Button } from "@shared/ui/button";
 import { AppButton } from "@/shared/ui/appButton";
 
 interface MobileMenuProps {
@@ -38,7 +37,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                 onClick={onClose}
                 intent="ghost"
                 icon={X}
-                iconSize={28}
+                iconClasses="h-7 w-7"
                 className="absolute top-5 right-4 p-0 h-auto"
               />
 
