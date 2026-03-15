@@ -9,7 +9,7 @@ import { AppInput } from "@shared/ui/appInput";
 import { AppCheckbox } from "@shared/ui/appCheckbox";
 
 import AuthActions from "./AuthActions";
-import PasswordInput from "./PasswordField";
+import PasswordField from "./PasswordField";
 
 const schema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email format"),
@@ -56,7 +56,7 @@ export default function LoginForm() {
         errorMsg={errors.email?.message}
         disabled={isSubmitting}
       />
-      <PasswordInput
+      <PasswordField
         {...register("password")}
         id="login-password"
         autoComplete="current-password"

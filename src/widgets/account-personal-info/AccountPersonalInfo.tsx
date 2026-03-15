@@ -53,7 +53,7 @@ export default function AccountPersonalInfo() {
 
         <div className="flex justify-between items-center gap-x-4">
           <div className="flex flex-col justify-start gap-y-2">
-            <p className="capitalize opacity-75">Email</p>
+            <span className="capitalize opacity-75">Email</span>
             <p className="w-37.5 md:w-full font-semibold text-xl truncate">
               john.doe@gmail.com
             </p>
@@ -76,7 +76,7 @@ export default function AccountPersonalInfo() {
         titleText="Change Password"
         subtitleText="Fill in the fields below to set a new password for your account."
       >
-        <PasswordChangeForm />
+        <PasswordChangeForm onSuccess={() => setIsPasswordModalOpen(false)} />
       </AppModal>
 
       <AppModal

@@ -10,7 +10,7 @@ import { AppCheckbox } from "@shared/ui/appCheckbox";
 
 import PhoneField from "./PhoneField";
 import AuthActions from "./AuthActions";
-import PasswordInput from "./PasswordField";
+import PasswordField from "./PasswordField";
 
 const schema = z
   .object({
@@ -57,6 +57,7 @@ export default function SignUpForm() {
     const { confirmPassword, ...dataToSubmit } = data;
 
     console.log("Server received data:", dataToSubmit);
+
     reset();
   };
 
@@ -115,7 +116,7 @@ export default function SignUpForm() {
         />
       </div>
 
-      <PasswordInput
+      <PasswordField
         {...register("password")}
         id="sign-up-password"
         placeholder="Come up with a password"
@@ -123,7 +124,7 @@ export default function SignUpForm() {
         errorMsg={errors.password?.message}
         isLoading={isSubmitting}
       />
-      <PasswordInput
+      <PasswordField
         {...register("confirmPassword")}
         id="sign-up-confirm-password"
         onChange={(e) => {
