@@ -1,0 +1,32 @@
+"use client";
+
+import Link from "next/link";
+
+import { AppButton } from "@/shared/ui/appButton";
+
+interface AuthActionsProps {
+  type: "login" | "sign up";
+  isLoading?: boolean;
+}
+
+export default function AuthActions({ type, isLoading }: AuthActionsProps) {
+  const isLogin = type === "login";
+
+  return (
+    <div className="flex flex-col items-center gap-4">
+      <AppButton type="submit" disabled={isLoading} className="w-full">
+        {isLogin ? "Login" : "Sign Up"}
+      </AppButton>
+
+      <p className="font-medium text-sm text-center">
+        {isLogin ? "Don't have an account? " : "Already have an account? "}
+        <Link
+          href={isLogin ? "/sign-up" : "/login"}
+          className="text-accent transition-all hover:underline "
+        >
+          {isLogin ? "Sign Up" : "Login"}
+        </Link>
+      </p>
+    </div>
+  );
+}

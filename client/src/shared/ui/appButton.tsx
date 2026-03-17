@@ -1,0 +1,54 @@
+import * as React from "react";
+import { LucideIcon } from "lucide-react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "@/shared/lib/utils";
+
+const appButtonVariants = cva(
+  "inline-flex justify-center items-center gap-1 lg:gap-2 font-medium text-sm text-foreground outline-accent cursor-pointer transition-all md:hover:scale-103 active:scale-95" +
+    "disabled:text-[#8F8C91] disabled:cursor-not-allowed disabled:active:scale-100",
+  {
+    variants: {
+      intent: {
+        primary:
+          "py-3 px-3 md:py-2.5 lg:px-4 text-[#112211] bg-primary rounded md:hover:bg-[#9BE0C8] disabled:bg-[#D2D1D3] disabled:hover:bg-[#D2D1D3] focus-visible:outline-primary focus-visible:outline-offset-2",
+        ghost:
+          "py-2 h-auto bg-transparent font-semibold md:hover:text-[#9BE0C8]",
+        outline:
+          "py-3.5 bg-transparent border border-primary rounded md:hover:text-[#9BE0C8] focus-visible:outline-primary",
+        empty: "p-0 bg-transparent",
+      },
+    },
+    defaultVariants: {
+      intent: "primary",
+    },
+  },
+);
+
+interface AppButtonProps
+  extends
+    React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof appButtonVariants> {
+  icon?: LucideIcon;
+  iconClasses?: string;
+}
+
+export const AppButton = ({
+  className,
+  intent,
+  icon: Icon,
+  iconClasses,
+  children,
+  ...props
+}: AppButtonProps) => {
+  return (
+    <button className={cn(appButtonVariants({ intent, className }))} {...props}>
+      {Icon && (
+        <Icon
+          strokeWidth={1.5}
+          className={cn("h-5.5 w-5.5 md:h-6 md:w-6 shrink-0", iconClasses)}
+        />
+      )}
+      {children}
+    </button>
+  );
+};
