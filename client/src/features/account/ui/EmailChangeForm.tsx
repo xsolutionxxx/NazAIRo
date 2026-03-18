@@ -7,16 +7,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import PasswordField from "@features/auth/ui/PasswordField";
 import { AppButton } from "@shared/ui/appButton";
-import { AppInput } from "@/shared/ui/appInput";
-import App from "next/app";
+import { AppInput } from "@shared/ui/appInput";
+import { emailChangeSchema } from "@shared/schemas/user-schema.js";
 
-// 1. Схема для першого кроку
-const requestSchema = z.object({
-  email: z.string().min(1, "Email is required").email("Invalid email format"),
-  password: z.string().min(1, "Current password is required"),
-});
-
-type EmailRequestFields = z.infer<typeof requestSchema>;
+type EmailRequestFields = z.infer<typeof emailChangeSchema>;
 
 interface EmailChangeFormProps {
   onSuccess?: () => void;
@@ -32,7 +26,7 @@ export default function EmailChangeForm({ onSuccess }: EmailChangeFormProps) {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<EmailRequestFields>({
-    resolver: zodResolver(requestSchema),
+    resolver: zodResolver(emailChangeSchema),
     defaultValues: { email: "", password: "" },
   });
 

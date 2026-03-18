@@ -7,17 +7,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { AppInput } from "@shared/ui/appInput";
 import { AppCheckbox } from "@shared/ui/appCheckbox";
+import { loginSchema } from "@shared/schemas/auth-schema.js";
 
 import AuthActions from "./AuthActions";
 import PasswordField from "./PasswordField";
 
-const schema = z.object({
-  email: z.string().min(1, "Email is required").email("Invalid email format"),
-  password: z.string().min(1, "Password is required"),
-  rememberMe: z.boolean(),
-});
-
-type LoginFormFields = z.infer<typeof schema>;
+type LoginFormFields = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
   const {
@@ -32,7 +27,7 @@ export default function LoginForm() {
       rememberMe: false,
     },
     mode: "onTouched",
-    resolver: zodResolver(schema),
+    resolver: zodResolver(loginSchema),
   });
 
   const onSubmit: SubmitHandler<LoginFormFields> = (data) => {

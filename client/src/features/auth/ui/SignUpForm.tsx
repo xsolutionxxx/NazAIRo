@@ -7,29 +7,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { AppInput } from "@shared/ui/appInput";
 import { AppCheckbox } from "@shared/ui/appCheckbox";
+import { registrationSchema } from "@shared/schemas/auth-schema.js";
 
 import PhoneField from "./PhoneField";
 import AuthActions from "./AuthActions";
 import PasswordField from "./PasswordField";
 
-const schema = z
-  .object({
-    firstName: z.string().trim().min(1, "First name is required"),
-    lastName: z.string().trim().min(1, "Last name is required"),
-    email: z.string().min(1, "Email is required").email("Invalid email format"),
-    phone: z.e164({ message: "Invalid phone format" }),
-    password: z.string().min(8, "Password must be at least 8 characters"),
-    confirmPassword: z.string().min(1, "Please confirm your password"),
-    terms: z.boolean().refine((val) => val === true, {
-      message: "You must agree to the terms",
-    }),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Password do not match",
-    path: ["confirmPassword"],
-  });
-
-type SignUpFormFields = z.infer<typeof schema>;
+type SignUpFormFields = z.infer<typeof registrationSchema>;
 
 export default function SignUpForm() {
   const {
@@ -50,7 +34,7 @@ export default function SignUpForm() {
       terms: false,
     },
     mode: "onBlur",
-    resolver: zodResolver(schema),
+    resolver: zodResolver(registrationSchema),
   });
 
   const onSubmit: SubmitHandler<SignUpFormFields> = (data) => {
