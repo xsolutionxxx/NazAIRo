@@ -18,40 +18,48 @@ class UserController {
 
       return res.json(userData);
     } catch (e) {
-      console.log(e);
+      next(e);
     }
   }
 
-  async login(req, res) {
+  async login(req, res, next) {
     try {
-    } catch (e) {}
+    } catch (e) {
+      next(e);
+    }
   }
 
-  async logout(req, res) {
+  async logout(req, res, next) {
     try {
-    } catch (e) {}
+    } catch (e) {
+      next(e);
+    }
   }
 
-  async activate(req, res) {
+  async activate(req, res, next) {
     try {
       const activationLink = req.params.link;
       await userService.activate(activationLink);
       return res.redirect(process.env.CLIENT_URL);
     } catch (e) {
-      console.log(e);
+      next(e);
     }
   }
 
-  async refresh(req, res) {
+  async refresh(req, res, next) {
     try {
-    } catch (e) {}
+    } catch (e) {
+      next(e);
+    }
   }
 
-  async getUser(req, res) {
+  async getUser(req, res, next) {
     try {
       const users = await prisma.user.findMany();
       res.json(users);
-    } catch (e) {}
+    } catch (e) {
+      next(e);
+    }
   }
 }
 

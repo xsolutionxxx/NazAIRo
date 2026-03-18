@@ -5,13 +5,16 @@ import prisma from "../shared/lib/prisma-db.js";
 import mailService from "./mail-service.js";
 import tokenService from "./token-service.js";
 import UserDto from "../dtos/user-dto.js";
+import ApiError from "../exceptions/api-error.js";
 
 class UserService {
   async registration(email, password, firstName, lastName, phone) {
     const candidate = await prisma.user.findUnique({ where: { email } });
 
     if (candidate) {
-      throw new Error(`A user with the email address ${email} already exists`);
+      throw ApiError.BadRequest(
+        `A user with the email address ${email} already exists`,
+      );
     }
 
     const hashPassword = await bcrypt.hash(password, 3);
@@ -47,7 +50,7 @@ class UserService {
     const user = await prisma.user.findUnique({ where: { activationLink } });
 
     if (!user) {
-      throw new Error("The activation link is invalid");
+      throw ApiError.BadRequest("The activation link is invalid");
     }
 
     await prisma.user.update({
