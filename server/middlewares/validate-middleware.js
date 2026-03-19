@@ -12,7 +12,7 @@ export const validate = (schema) => (req, res, next) => {
         message: e.message,
       }));
 
-      next(ApiError.BadRequest("Validation error", formattedErrors));
+      return next(ApiError.BadRequest("Validation error", formattedErrors));
     }
 
     next(err);
