@@ -67,7 +67,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                   </AppButton>
                 </Link>
 
-                <Link href="/signup">
+                <Link href="/sign-up">
                   <AppButton className="xs:px-5 bg-foreground font-semibold text-surface">
                     Sign Up
                   </AppButton>
