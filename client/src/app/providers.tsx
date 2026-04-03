@@ -2,6 +2,8 @@
 
 import { ThemeProvider } from "next-themes";
 import { ReactNode, useEffect, useState } from "react";
+import { Provider } from "react-redux";
+import store from "./store/store";
 
 export function Providers({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
@@ -11,13 +13,18 @@ export function Providers({ children }: { children: ReactNode }) {
     return () => cancelAnimationFrame(raf);
   }, []);
 
-  if (!mounted) {
-    return <>{children}</>;
-  }
-
   return (
-    <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
-      {children}
-    </ThemeProvider>
+    <Provider store={store}>
+      {mounted && (
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem={false}
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
+      )}
+    </Provider>
   );
 }

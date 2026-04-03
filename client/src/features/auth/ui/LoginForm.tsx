@@ -1,5 +1,6 @@
 "use client";
 
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
@@ -12,9 +13,17 @@ import { loginSchema } from "@shared/schemas/auth-schema.js";
 import AuthActions from "./AuthActions";
 import PasswordField from "./PasswordField";
 
+import { useAppDispatch, useAppSelector } from "@shared/lib/hooks/redux";
+import { login } from "../model/authActions";
+
 type LoginFormFields = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
+  const dispatch = useAppDispatch();
+  const { error: serverError, authLoadingStatus } = useAppSelector(
+    (state) => state.authReducer,
+  );
+
   const {
     register,
     handleSubmit,
@@ -30,10 +39,16 @@ export default function LoginForm() {
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit: SubmitHandler<LoginFormFields> = (data) => {
-    console.log(data);
-    reset();
+  const onSubmit: SubmitHandler<LoginFormFields> = async (data) => {
+    const resultAction = await dispatch(login(data));
+
+    if (login.fulfilled.match(resultAction)) {
+      reset();
+      redirect("/account");
+    }
   };
+
+  const isLoading = authLoadingStatus === "loading" || isSubmitting;
 
   return (
     <form
@@ -49,7 +64,7 @@ export default function LoginForm() {
         placeholder="Enter your email address"
         label="Email"
         errorMsg={errors.email?.message}
-        disabled={isSubmitting}
+        disabled={isLoading}
       />
       <PasswordField
         {...register("password")}
@@ -59,7 +74,7 @@ export default function LoginForm() {
         label="Password"
         spellCheck={false}
         errorMsg={errors.password?.message}
-        isLoading={isSubmitting}
+        isLoading={isLoading}
       />
 
       <div className="flex justify-between">
@@ -67,7 +82,7 @@ export default function LoginForm() {
           {...register("rememberMe")}
           id="remember-me"
           label="Remember me"
-          disabled={isSubmitting}
+          disabled={isLoading}
         />
         <Link
           href="/forgot-password"
@@ -77,7 +92,13 @@ export default function LoginForm() {
         </Link>
       </div>
 
-      <AuthActions type="login" isLoading={isSubmitting} />
+      {serverError && (
+        <div className="p-3 text-sm text-white bg-red-500 rounded-md">
+          {serverError}
+        </div>
+      )}
+
+      <AuthActions type="login" isLoading={isLoading} />
     </form>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { z } from "zod";
@@ -13,9 +14,17 @@ import PhoneField from "./PhoneField";
 import AuthActions from "./AuthActions";
 import PasswordField from "./PasswordField";
 
+import { useAppDispatch, useAppSelector } from "@/shared/lib/hooks/redux";
+import { registration } from "../model/authActions";
+
 type SignUpFormFields = z.infer<typeof registrationSchema>;
 
 export default function SignUpForm() {
+  const dispatch = useAppDispatch();
+  const { error: serverError, authLoadingStatus } = useAppSelector(
+    (state) => state.authReducer,
+  );
+
   const {
     register,
     handleSubmit,
@@ -37,13 +46,16 @@ export default function SignUpForm() {
     resolver: zodResolver(registrationSchema),
   });
 
-  const onSubmit: SubmitHandler<SignUpFormFields> = (data) => {
-    const { confirmPassword, ...dataToSubmit } = data;
+  const onSubmit: SubmitHandler<SignUpFormFields> = async (data) => {
+    const resultAction = await dispatch(registration(data));
 
-    console.log("Server received data:", dataToSubmit);
-
-    reset();
+    if (registration.fulfilled.match(resultAction)) {
+      reset();
+      redirect("/account");
+    }
   };
+
+  const isLoading = authLoadingStatus === "loading" || isSubmitting;
 
   return (
     <form
@@ -59,7 +71,7 @@ export default function SignUpForm() {
           placeholder="Your first name"
           label="First name"
           errorMsg={errors.firstName?.message}
-          disabled={isSubmitting}
+          disabled={isLoading}
           containerClassName="col-span-2 sm:col-span-1 md:col-span-2 lg:col-span-1"
         />
         <AppInput
@@ -70,7 +82,7 @@ export default function SignUpForm() {
           placeholder="Your last name"
           label="Last name"
           errorMsg={errors.lastName?.message}
-          disabled={isSubmitting}
+          disabled={isLoading}
           containerClassName="col-span-2 sm:col-span-1 md:col-span-2 lg:col-span-1"
         />
 
@@ -83,7 +95,7 @@ export default function SignUpForm() {
           placeholder="Your email address"
           label="Email"
           errorMsg={errors.email?.message}
-          disabled={isSubmitting}
+          disabled={isLoading}
           containerClassName="col-span-2 sm:col-span-1 md:col-span-2 xl:col-span-1"
         />
         <Controller
@@ -93,7 +105,7 @@ export default function SignUpForm() {
             <PhoneField
               {...field}
               errorMsg={fieldState.error?.message}
-              isLoading={isSubmitting}
+              isLoading={isLoading}
               containerClassName="col-span-2 sm:col-span-1 md:col-span-2 xl:col-span-1"
             />
           )}
@@ -106,7 +118,7 @@ export default function SignUpForm() {
         placeholder="Come up with a password"
         label="Password"
         errorMsg={errors.password?.message}
-        isLoading={isSubmitting}
+        isLoading={isLoading}
       />
       <PasswordField
         {...register("confirmPassword")}
@@ -118,7 +130,7 @@ export default function SignUpForm() {
         placeholder="Repeat the password"
         label="Confirm password"
         errorMsg={errors.confirmPassword?.message}
-        isLoading={isSubmitting}
+        isLoading={isLoading}
       />
 
       <AppCheckbox
@@ -143,10 +155,16 @@ export default function SignUpForm() {
           </span>
         }
         errorMsg={errors.terms?.message}
-        disabled={isSubmitting}
+        disabled={isLoading}
       />
 
-      <AuthActions type="sign up" isLoading={isSubmitting} />
+      {serverError && (
+        <div className="p-3 text-sm text-white bg-red-500 rounded-md">
+          {serverError}
+        </div>
+      )}
+
+      <AuthActions type="sign up" isLoading={isLoading} />
     </form>
   );
 }

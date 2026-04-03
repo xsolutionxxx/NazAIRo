@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
     "target": "ES2017",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
@@ -21,6 +20,7 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
+      "@app/*": ["./src/app/*"],
       "@public/*": ["./public/*"],
       "@shared/*": ["./src/shared/*"],
       "@entities/*": ["./src/entities/*"],
