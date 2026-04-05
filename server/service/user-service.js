@@ -6,21 +6,30 @@ import mailService from "./mail-service.js";
 import tokenService from "./token-service.js";
 import UserDto from "../dtos/user-dto.js";
 import ApiError from "../exceptions/api-error.js";
+import { id } from "zod/locales";
 
 class UserService {
   async registration(email, password, firstName, lastName, phone) {
-    const candidate = await prisma.user.findUnique({ where: { email } });
+    const candidate = await prisma.user.findFirst({
+      where: {
+        OR: [{ email }, { phone }],
+      },
+    });
+    const preCandidate = await prisma.preUser.findFirst({
+      where: { OR: [{ email }, { phone }] },
+    });
 
-    if (candidate) {
+    if (candidate || preCandidate) {
+      const field = candidate.email === email ? "email" : "phone";
       throw ApiError.BadRequest(
-        `A user with the email address ${email} already exists`,
+        `User with this ${field} already exists or waiting for activation`,
       );
     }
 
     const hashPassword = await bcrypt.hash(password, 3);
     const activationLink = uuidv4();
 
-    const user = await prisma.user.create({
+    await prisma.preUser.create({
       data: {
         email,
         password: hashPassword,
@@ -36,7 +45,36 @@ class UserService {
       `${process.env.API_URL}/api/activate/${activationLink}`,
     );
 
-    const userDto = new UserDto(user); // id, email, isActivated
+    return {
+      message:
+        "An activation letter has been sent to your email address. Please follow the instructions to activate your account.",
+    };
+  }
+
+  async activate(activationLink) {
+    const preUser = await prisma.preUser.findUnique({
+      where: { activationLink },
+    });
+
+    if (!preUser) {
+      throw ApiError.BadRequest("The activation link is invalid");
+    }
+
+    const user = await prisma.user.create({
+      data: {
+        email: preUser.email,
+        password: preUser.password,
+        firstName: preUser.firstName,
+        lastName: preUser.lastName,
+        phone: preUser.phone,
+      },
+    });
+
+    await prisma.preUser.delete({
+      where: { id: preUser.id },
+    });
+
+    const userDto = new UserDto(user);
     const tokens = tokenService.generateTokens({ ...userDto });
     await tokenService.saveToken(userDto.id, tokens.refreshToken);
 
@@ -44,19 +82,6 @@ class UserService {
       ...tokens,
       user: userDto,
     };
-  }
-
-  async activate(activationLink) {
-    const user = await prisma.user.findUnique({ where: { activationLink } });
-
-    if (!user) {
-      throw ApiError.BadRequest("The activation link is invalid");
-    }
-
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { isActivated: true },
-    });
   }
 
   async login(email, password) {
@@ -110,6 +135,112 @@ class UserService {
       ...tokens,
       user: userDto,
     };
+  }
+
+  async requestEmailChange(userId, newEmail, password) {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+
+    const isPassEquals = await bcrypt.compare(password, user.password);
+    if (!isPassEquals) throw ApiError.BadRequest("Incorrect password");
+
+    const emailInUse = await prisma.user.findUnique({
+      where: { email: newEmail },
+    });
+    const emailInPre = await prisma.preUser.findUnique({
+      where: { email: newEmail },
+    });
+
+    if (emailInUse || emailInPre || user.email === newEmail) {
+      throw ApiError.BadRequest(
+        "User with this email already exists or waiting for activation",
+      );
+    }
+
+    const activationLink = uuidv4();
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        pendingEmail: newEmail,
+        activationLink: activationLink,
+      },
+    });
+
+    await mailService.sendActivationMail(
+      newEmail,
+      `${process.env.API_URL}/api/confirm-email-change/${activationLink}`,
+    );
+
+    return {
+      message: "A confirmation email has been sent to your new email address.",
+    };
+  }
+
+  async confirmEmailChange(activationLink) {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { activationLink: activationLink },
+      });
+
+      if (!user || !user.pendingEmail) {
+        throw ApiError.BadRequest("Invalid or expired confirmation link");
+      }
+
+      const updatedUser = await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          email: user.pendingEmail,
+          pendingEmail: null,
+          activationLink: null,
+        },
+      });
+
+      const userDto = new UserDto(updatedUser);
+      const tokens = tokenService.generateTokens({ ...userDto });
+      await tokenService.saveToken(userDto.id, tokens.refreshToken);
+
+      return { ...tokens, user: userDto };
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async changePassword(userId, currentPassword, newPassword) {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    const isPassEquals = await bcrypt.compare(currentPassword, user.password);
+
+    if (!isPassEquals)
+      throw ApiError.BadRequest("The exact password is incorrect");
+
+    const hashPassword = await bcrypt.hash(newPassword, 3);
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: { password: hashPassword },
+    });
+
+    return new UserDto(updatedUser);
+  }
+
+  async updateProfile(userId, updateData) {
+    if (updateData.phone) {
+      const candidate = await prisma.user.findFirst({
+        where: {
+          phone: updateData.phone,
+          NOT: { id: userId },
+        },
+      });
+
+      if (candidate) {
+        throw ApiError.BadRequest("User with this phone number already exists");
+      }
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: updateData,
+    });
+
+    return new UserDto(updatedUser);
   }
 }
 

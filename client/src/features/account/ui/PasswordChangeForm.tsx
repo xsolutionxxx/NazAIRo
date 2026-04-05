@@ -6,6 +6,9 @@ import PasswordField from "@features/auth/ui/PasswordField";
 import { AppButton } from "@shared/ui/appButton";
 import { passwordChangeSchema } from "@shared/schemas/user-schema.js";
 
+import { useAppDispatch, useAppSelector } from "@/shared/lib/hooks/redux";
+import { changePassword } from "../model/accountAction";
+
 type PasswordChangeFormFields = z.infer<typeof passwordChangeSchema>;
 
 interface PasswordChangeFormProps {
@@ -15,6 +18,11 @@ interface PasswordChangeFormProps {
 export default function PasswordChangeForm({
   onSuccess,
 }: PasswordChangeFormProps) {
+  const dispatch = useAppDispatch();
+  const { error: serverError, accountLoadingStatus } = useAppSelector(
+    (state) => state.accountReducer,
+  );
+
   const {
     register,
     handleSubmit,
@@ -30,15 +38,16 @@ export default function PasswordChangeForm({
     resolver: zodResolver(passwordChangeSchema),
   });
 
-  const onSubmit: SubmitHandler<PasswordChangeFormFields> = (data) => {
-    console.log(data);
+  const onSubmit: SubmitHandler<PasswordChangeFormFields> = async (data) => {
+    const resultAction = await dispatch(changePassword(data));
 
-    reset();
-
-    if (onSuccess) {
-      onSuccess();
+    if (changePassword.fulfilled.match(resultAction)) {
+      onSuccess?.();
+      reset();
     }
   };
+
+  const isLoading = accountLoadingStatus === "loading" || isSubmitting;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-10">
@@ -50,8 +59,9 @@ export default function PasswordChangeForm({
         labelClassName="bg-surface"
         placeholder="Enter your current password"
         errorMsg={errors.currentPassword?.message}
-        disabled={isSubmitting}
+        disabled={isLoading}
       />
+
       <PasswordField
         {...register("newPassword")}
         spellCheck={false}
@@ -59,8 +69,9 @@ export default function PasswordChangeForm({
         label="Сreate New Password"
         labelClassName="bg-surface"
         errorMsg={errors.newPassword?.message}
-        disabled={isSubmitting}
+        disabled={isLoading}
       />
+
       <PasswordField
         {...register("confirmNewPassword")}
         spellCheck={false}
@@ -68,9 +79,16 @@ export default function PasswordChangeForm({
         label="Repeat New Password"
         labelClassName="bg-surface"
         errorMsg={errors.confirmNewPassword?.message}
-        disabled={isSubmitting}
+        disabled={isLoading}
       />
-      <AppButton type="submit" disabled={isSubmitting} className="w-full">
+
+      {serverError && (
+        <div className="p-3 text-sm text-white bg-red-500 rounded-md">
+          {serverError}
+        </div>
+      )}
+
+      <AppButton type="submit" disabled={isLoading} className="w-full">
         Update Password
       </AppButton>
     </form>

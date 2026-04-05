@@ -4,12 +4,14 @@ import { useRef, useState } from "react";
 import { Pencil } from "lucide-react";
 import { UserAvatar } from "@/shared/ui/userAvatar";
 import { AppButton } from "@/shared/ui/appButton";
-import { cn } from "@shared/lib/utils";
+import { useAppSelector } from "@/shared/lib/hooks/redux";
 
 export default function EditableAvatar() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  const { user } = useAppSelector((state) => state.authReducer);
 
   const handleEditClick = () => fileInputRef.current?.click();
 
@@ -51,8 +53,10 @@ export default function EditableAvatar() {
       </div>
 
       <div className="text-center">
-        <h3 className="font-bold text-xl">John Doe</h3>
-        <p className="text-sm text-muted-foreground">john.doe@gmail.com</p>
+        <h3 className="font-bold text-xl">
+          {user?.firstName} {user?.lastName}
+        </h3>
+        <p className="text-sm text-muted-foreground">{user?.email}</p>
       </div>
     </div>
   );

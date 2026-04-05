@@ -1,15 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Pencil } from "lucide-react";
 
 import { AppButton } from "@shared/ui/appButton";
+import { profileSchema } from "@shared/schemas/user-schema";
 
 interface EditableFieldProps {
   label: string;
-  value: string;
+  value?: string | null;
   onSave?: (newValue: string) => Promise<void>;
-  type?: string;
 }
 
 export default function EditableField({
@@ -19,7 +19,7 @@ export default function EditableField({
   type,
 }: EditableFieldProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [currentValue, setCurrentValue] = useState(value);
+  const [currentValue, setCurrentValue] = useState<string>(value || "");
   /* const [isLoading, setIsLoading] = useState(false);
 
   const handleSave = async () => {
@@ -38,7 +38,7 @@ export default function EditableField({
             value={currentValue}
             onChange={(e) => setCurrentValue(e.target.value)}
             className="pb-2 h-7 w-37.5 md:w-full border-b focus:border-primary outline-none font-semibold text-xl placeholder:font-normal placeholder:opacity-80 transition-all"
-            placeholder={value}
+            placeholder={value || ""}
           />
         ) : (
           <p className="w-37.5 md:w-full font-semibold text-xl truncate">

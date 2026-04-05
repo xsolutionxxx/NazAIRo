@@ -1,6 +1,6 @@
 import $api from "@shared/api/index";
 import { AxiosResponse } from "axios";
-import { AuthResponse } from "./authResponde";
+import { AuthResponse } from "./authResponse";
 
 export default class AuthService {
   static async registration(

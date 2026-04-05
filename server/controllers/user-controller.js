@@ -1,5 +1,6 @@
 import prisma from "../shared/lib/prisma-db.js";
 import userService from "../service/user-service.js";
+import UserDto from "../dtos/user-dto.js";
 class UserController {
   async registration(req, res, next) {
     try {
@@ -73,6 +74,73 @@ class UserController {
         httpOnly: true,
       });
 
+      return res.json(userData);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async requestEmailChange(req, res, next) {
+    try {
+      const { id } = req.user;
+      const { newEmail, password } = req.body;
+
+      await userService.requestEmailChange(id, newEmail, password);
+
+      return res.json({ message: "Confirmation link sent to your new email" });
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async confirmEmailChange(req, res, next) {
+    try {
+      const { link } = req.params;
+
+      const userData = await userService.confirmEmailChange(link);
+
+      res.cookie("refreshToken", userData.refreshToken, {
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+        httpOnly: true,
+      });
+
+      return res.redirect(
+        `${process.env.CLIENT_URL}/account?emailUpdated=true`,
+      );
+    } catch (e) {
+      return res.redirect(
+        `${process.env.CLIENT_URL}/account?error=invalid-link`,
+      );
+    }
+  }
+
+  async updateProfile(req, res, next) {
+    try {
+      const { id } = req.user;
+      const { firstName, lastName, phone } = req.body;
+
+      const updateData = {};
+      if (firstName !== undefined) updateData.firstName = firstName;
+      if (lastName !== undefined) updateData.lastName = lastName;
+      if (phone !== undefined) updateData.phone = phone;
+
+      const userData = await userService.updateProfile(id, updateData);
+      return res.json(userData);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async changePassword(req, res, next) {
+    try {
+      const { id } = req.user;
+      const { currentPassword, newPassword } = req.body;
+
+      const userData = await userService.changePassword(
+        id,
+        currentPassword,
+        newPassword,
+      );
       return res.json(userData);
     } catch (e) {
       next(e);

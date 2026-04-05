@@ -1,7 +1,10 @@
-import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { createAsyncThunk } from "@reduxjs/toolkit";
+
 import AuthService from "../api/authService";
-import { AuthResponse } from "../api/authResponde";
+import { AuthResponse } from "../api/authResponse";
+
+import $api from "@shared/api";
 
 interface RegistrationFields {
   email: string;
@@ -13,7 +16,7 @@ interface RegistrationFields {
   terms: boolean;
 }
 
-export interface LoginFields {
+interface LoginFields {
   email: string;
   password: string;
   rememberMe: boolean;
@@ -43,10 +46,9 @@ export const registration = createAsyncThunk<
       phone,
       terms,
     );
-    console.log(response.data);
     localStorage.setItem("token", response.data.accessToken);
     return response.data;
-  } catch (err: unknown) {
+  } catch (err) {
     if (axios.isAxiosError(err)) {
       const message = err.response?.data?.message || "Registration Error";
       return rejectWithValue(message);
@@ -64,10 +66,9 @@ export const login = createAsyncThunk<
   try {
     const { email, password, rememberMe } = fields;
     const response = await AuthService.login(email, password, rememberMe);
-    console.log(response.data);
     localStorage.setItem("token", response.data.accessToken);
     return response.data;
-  } catch (err: unknown) {
+  } catch (err) {
     if (axios.isAxiosError(err)) {
       const message = err.response?.data?.message || "Registration Error";
       return rejectWithValue(message);
@@ -83,7 +84,7 @@ export const logout = createAsyncThunk<void, void, { rejectValue: string }>(
     try {
       await AuthService.logout();
       localStorage.removeItem("token");
-    } catch (err: unknown) {
+    } catch (err) {
       if (axios.isAxiosError(err)) {
         const message = err.response?.data?.message || "Registration Error";
         return rejectWithValue(message);
@@ -93,3 +94,25 @@ export const logout = createAsyncThunk<void, void, { rejectValue: string }>(
     }
   },
 );
+
+export const checkAuth = createAsyncThunk<
+  AuthResponse,
+  void,
+  { rejectValue: string }
+>("auth/check", async (_, { rejectWithValue }) => {
+  try {
+    const response = await $api<AuthResponse>("/refresh");
+    localStorage.setItem("token", response.data.accessToken);
+    return response.data;
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      if (err.response?.status === 401) {
+        localStorage.removeItem("token");
+      }
+      const message = err.response?.data?.message || "Auth check failed";
+      return rejectWithValue(message);
+    }
+
+    return rejectWithValue("Unknown Error");
+  }
+});

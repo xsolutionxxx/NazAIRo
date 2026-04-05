@@ -11,10 +11,13 @@ import { AppButton } from "@/shared/ui/appButton";
 import { Logo } from "@shared/ui/logo";
 
 import MobileMenu from "../mobile-menu/MobileMenu";
+import UserMenu from "@/features/account/ui/UserMenu";
 
 import { cn } from "@shared/lib/utils";
 
 import { ThemeToggleVortex } from "@/features/theme-toggle/ui/ThemeToggleVortex";
+
+import { useAppSelector } from "@/shared/lib/hooks/redux";
 
 interface HeaderProps {
   className?: string;
@@ -50,6 +53,8 @@ export default function Header({
     ? "bg-white"
     : "bg-foreground text-surface hover:text-[#112211]";
   const textColor = isHero ? "text-white" : "text-foreground";
+
+  const { isAuth } = useAppSelector((state) => state.authReducer);
 
   useEffect(() => {
     if (isMobileMenuOpen) {
@@ -103,16 +108,22 @@ export default function Header({
 
           <div className="hidden md:flex items-center gap-8">
             <ThemeToggleVortex className={textColor} />
-            <Link href="/login">
-              <AppButton intent="ghost" className={textColor}>
-                Login
-              </AppButton>
-            </Link>
-            <Link href="/sign-up">
-              <AppButton className={cn(`font-semibold ${bgBtnColor}`)}>
-                Sign Up
-              </AppButton>
-            </Link>
+            {!isAuth ? (
+              <>
+                <Link href="/login">
+                  <AppButton intent="ghost" className={textColor}>
+                    Login
+                  </AppButton>
+                </Link>
+                <Link href="/sign-up">
+                  <AppButton className={cn(`font-semibold ${bgBtnColor}`)}>
+                    Sign Up
+                  </AppButton>
+                </Link>
+              </>
+            ) : (
+              <UserMenu className={textColor} />
+            )}
           </div>
 
           <ThemeToggleVortex className={cn(`md:hidden ${textColor}`)} />

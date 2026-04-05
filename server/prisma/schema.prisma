@@ -9,14 +9,16 @@ datasource db {
 model User {
   id              String   @id @default(uuid())
   email           String   @unique
+  pendingEmail    String?  @unique
   password        String
   firstName       String
   lastName        String
-  phone           String
+  phone           String   @unique
   address         String?
   dateOfBirth     DateTime?
+  avatarUrl       String?
+  backgroundUrl   String?
   
-  isActivated     Boolean  @default(false)
   activationLink  String?  @unique
 
   paymentMethods  PaymentMethod[]
@@ -24,6 +26,17 @@ model User {
   updatedAt       DateTime @updatedAt
 
   refreshTokens   RefreshToken[]
+}
+
+model PreUser {
+  id              String   @id @default(uuid())
+  email           String   @unique
+  password        String
+  firstName       String
+  lastName        String
+  phone           String   @unique
+  activationLink  String   @unique
+  createdAt       DateTime @default(now())
 }
 
 model RefreshToken {

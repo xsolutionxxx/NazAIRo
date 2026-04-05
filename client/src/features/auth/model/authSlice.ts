@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { IUser } from "../api/IUser";
-import { registration, login, logout } from "./authActions";
+import { IUser } from "../../../entities/user/types/IUser";
+import { registration, login, logout, checkAuth } from "./authActions";
 
 interface AuthState {
   user: IUser | null;
@@ -35,6 +35,16 @@ const authSlice = createSlice({
       .addCase(logout.fulfilled, (state) => {
         state.authLoadingStatus = "idle";
         state.isAuth = false;
+      })
+      .addCase(checkAuth.fulfilled, (state, action) => {
+        state.authLoadingStatus = "idle";
+        state.isAuth = true;
+        state.user = action.payload.user;
+      })
+      .addCase(checkAuth.rejected, (state) => {
+        state.authLoadingStatus = "idle";
+        state.isAuth = false;
+        state.user = null;
       })
       .addMatcher(
         (action) => action.type.endsWith("/pending"),
