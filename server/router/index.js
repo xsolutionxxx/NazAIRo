@@ -23,6 +23,7 @@ router.post("/login", validate(loginSchema), userController.login);
 router.post("/logout", userController.logout);
 router.get("/activate/:link", userController.activate);
 router.get("/refresh", userController.refresh);
+router.get("/confirm-email-change/:link", userController.confirmEmailChange);
 
 router.post(
   "/request-email-change",
@@ -45,8 +46,10 @@ router.patch(
   userController.updateProfile,
 );
 
-router.get("/confirm-email-change/:link", userController.confirmEmailChange);
-
-router.get("/users", authMiddleware, userController.getUsers);
+router.get(
+  "/users",
+  authMiddleware /* adminMiddleware */,
+  userController.getUsers,
+);
 
 export default router;

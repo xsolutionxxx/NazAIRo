@@ -3,20 +3,17 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { AppInput } from "@shared/ui/appInput";
 import { AppCheckbox } from "@shared/ui/appCheckbox";
-import { loginSchema } from "@shared/schemas/auth-schema.js";
+import { loginSchema, LoginFields } from "@shared/schemas/auth-schema";
 
 import AuthActions from "./AuthActions";
 import PasswordField from "./PasswordField";
 
 import { useAppDispatch, useAppSelector } from "@shared/lib/hooks/redux";
 import { login } from "../model/authActions";
-
-type LoginFormFields = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
   const dispatch = useAppDispatch();
@@ -29,17 +26,16 @@ export default function LoginForm() {
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<LoginFormFields>({
+  } = useForm<LoginFields>({
     defaultValues: {
       email: "",
       password: "",
-      rememberMe: false,
     },
     mode: "onTouched",
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit: SubmitHandler<LoginFormFields> = async (data) => {
+  const onSubmit: SubmitHandler<LoginFields> = async (data) => {
     const resultAction = await dispatch(login(data));
 
     if (login.fulfilled.match(resultAction)) {
@@ -79,7 +75,6 @@ export default function LoginForm() {
 
       <div className="flex justify-between">
         <AppCheckbox
-          {...register("rememberMe")}
           id="remember-me"
           label="Remember me"
           disabled={isLoading}

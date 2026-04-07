@@ -11,7 +11,7 @@ function AuthInitializer({ children }: { children: ReactNode }) {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (localStorage.getItem("token")) {
+    if (localStorage.getItem("was_logged_in")) {
       dispatch(checkAuth());
     }
   }, [dispatch]);

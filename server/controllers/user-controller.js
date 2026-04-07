@@ -1,6 +1,24 @@
-import prisma from "../shared/lib/prisma-db.js";
 import userService from "../service/user-service.js";
-import UserDto from "../dtos/user-dto.js";
+import {
+  REFRESH_TOKEN_MAX_AGE,
+  ACCESS_TOKEN_MAX_AGE,
+} from "../shared/lib/constants.js";
+
+const setAuthCookies = (res, userData) => {
+  res.cookie("refreshToken", userData.refreshToken, {
+    maxAge: REFRESH_TOKEN_MAX_AGE,
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  });
+  res.cookie("accessToken", userData.accessToken, {
+    maxAge: ACCESS_TOKEN_MAX_AGE,
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  });
+};
+
 class UserController {
   async registration(req, res, next) {
     try {
@@ -12,10 +30,6 @@ class UserController {
         lastName,
         phone,
       );
-      res.cookie("refreshToken", userData.refreshToken, {
-        maxAge: 15 * 24 * 60 * 60 * 1000,
-        httpOnly: true,
-      });
 
       return res.json(userData);
     } catch (e) {
@@ -29,10 +43,7 @@ class UserController {
 
       const userData = await userService.login(email, password);
 
-      res.cookie("refreshToken", userData.refreshToken, {
-        maxAge: 15 * 24 * 60 * 60 * 1000,
-        httpOnly: true,
-      });
+      setAuthCookies(res, userData);
 
       return res.json(userData);
     } catch (e) {
@@ -47,17 +58,8 @@ class UserController {
       const token = await userService.logout(refreshToken);
 
       res.clearCookie("refreshToken");
+      res.clearCookie("accessToken");
       return res.json(token);
-    } catch (e) {
-      next(e);
-    }
-  }
-
-  async activate(req, res, next) {
-    try {
-      const activationLink = req.params.link;
-      await userService.activate(activationLink);
-      return res.redirect(process.env.CLIENT_URL);
     } catch (e) {
       next(e);
     }
@@ -69,12 +71,21 @@ class UserController {
 
       const userData = await userService.refresh(refreshToken);
 
-      res.cookie("refreshToken", userData.refreshToken, {
-        maxAge: 15 * 24 * 60 * 60 * 1000,
-        httpOnly: true,
-      });
+      setAuthCookies(res, userData);
 
       return res.json(userData);
+    } catch (e) {
+      res.clearCookie("refreshToken");
+      res.clearCookie("accessToken");
+      next(e);
+    }
+  }
+
+  async activate(req, res, next) {
+    try {
+      const activationLink = req.params.link;
+      await userService.activate(activationLink);
+      return res.redirect(process.env.CLIENT_URL);
     } catch (e) {
       next(e);
     }
@@ -99,10 +110,7 @@ class UserController {
 
       const userData = await userService.confirmEmailChange(link);
 
-      res.cookie("refreshToken", userData.refreshToken, {
-        maxAge: 30 * 24 * 60 * 60 * 1000,
-        httpOnly: true,
-      });
+      setAuthCookies(res, userData);
 
       return res.redirect(
         `${process.env.CLIENT_URL}/account?emailUpdated=true`,
@@ -117,14 +125,8 @@ class UserController {
   async updateProfile(req, res, next) {
     try {
       const { id } = req.user;
-      const { firstName, lastName, phone } = req.body;
 
-      const updateData = {};
-      if (firstName !== undefined) updateData.firstName = firstName;
-      if (lastName !== undefined) updateData.lastName = lastName;
-      if (phone !== undefined) updateData.phone = phone;
-
-      const userData = await userService.updateProfile(id, updateData);
+      const userData = await userService.updateProfile(id, req.body);
       return res.json(userData);
     } catch (e) {
       next(e);
@@ -149,8 +151,8 @@ class UserController {
 
   async getUsers(req, res, next) {
     try {
-      const users = await prisma.user.findMany();
-      res.json(users);
+      const usersData = await userService.getUsers();
+      res.json(usersData);
     } catch (e) {
       next(e);
     }

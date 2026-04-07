@@ -3,12 +3,14 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { AppInput } from "@shared/ui/appInput";
 import { AppCheckbox } from "@shared/ui/appCheckbox";
-import { registrationSchema } from "@shared/schemas/auth-schema.js";
+import {
+  registrationSchema,
+  RegistrationFields,
+} from "@shared/schemas/auth-schema";
 
 import PhoneField from "./PhoneField";
 import AuthActions from "./AuthActions";
@@ -16,8 +18,6 @@ import PasswordField from "./PasswordField";
 
 import { useAppDispatch, useAppSelector } from "@/shared/lib/hooks/redux";
 import { registration } from "../model/authActions";
-
-type SignUpFormFields = z.infer<typeof registrationSchema>;
 
 export default function SignUpForm() {
   const dispatch = useAppDispatch();
@@ -32,7 +32,7 @@ export default function SignUpForm() {
     control,
     trigger,
     formState: { errors, isSubmitting },
-  } = useForm<SignUpFormFields>({
+  } = useForm<RegistrationFields>({
     defaultValues: {
       firstName: "",
       lastName: "",
@@ -46,7 +46,7 @@ export default function SignUpForm() {
     resolver: zodResolver(registrationSchema),
   });
 
-  const onSubmit: SubmitHandler<SignUpFormFields> = async (data) => {
+  const onSubmit: SubmitHandler<RegistrationFields> = async (data) => {
     const resultAction = await dispatch(registration(data));
 
     if (registration.fulfilled.match(resultAction)) {

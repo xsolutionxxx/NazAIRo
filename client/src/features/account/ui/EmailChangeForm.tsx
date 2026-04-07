@@ -2,15 +2,18 @@
 
 import { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import PasswordField from "@features/auth/ui/PasswordField";
 import { AppButton } from "@shared/ui/appButton";
 import { AppInput } from "@shared/ui/appInput";
-import { emailChangeSchema } from "@shared/schemas/user-schema.js";
+import {
+  emailChangeSchema,
+  EmailChangeFields,
+} from "@shared/schemas/user-schema";
 
-type EmailRequestFields = z.infer<typeof emailChangeSchema>;
+import { useAppDispatch } from "@/shared/lib/hooks/redux";
+import { changeEmail } from "@/features/auth/model/authActions";
 
 interface EmailChangeFormProps {
   onSuccess?: () => void;
@@ -19,30 +22,33 @@ interface EmailChangeFormProps {
 export default function EmailChangeForm({ onSuccess }: EmailChangeFormProps) {
   const [step, setStep] = useState<"request" | "verify">("request");
   const [targetEmail, setTargetEmail] = useState("");
-  const [verificationCode, setVerificationCode] = useState("");
+  const [resultMessage, setResultMessage] = useState("");
+
+  const dispatch = useAppDispatch();
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<EmailRequestFields>({
+  } = useForm<EmailChangeFields>({
     resolver: zodResolver(emailChangeSchema),
-    defaultValues: { email: "", password: "" },
+    defaultValues: { newEmail: "", password: "" },
   });
 
-  const onRequestSubmit: SubmitHandler<EmailRequestFields> = async (data) => {
-    console.log("Requesting change for:", data.email);
+  const onRequestSubmit: SubmitHandler<EmailChangeFields> = async (data) => {
+    const resultAction = await dispatch(changeEmail(data)).unwrap();
 
-    setTargetEmail(data.email);
+    setResultMessage(resultAction.message || "some mess");
+    setTargetEmail(data.newEmail);
     setStep("verify");
   };
 
-  const handleVerify = async (e: React.FormEvent) => {
+  /* const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Verifying code:", verificationCode, "for", targetEmail);
 
     if (onSuccess) onSuccess();
-  };
+  }; */
 
   return (
     <div className="w-full">
@@ -52,11 +58,11 @@ export default function EmailChangeForm({ onSuccess }: EmailChangeFormProps) {
           className="flex flex-col gap-10"
         >
           <AppInput
-            {...register("email")}
+            {...register("newEmail")}
             label="New Email"
             labelClassName="bg-surface"
             placeholder="example@gmail.com"
-            errorMsg={errors.email?.message}
+            errorMsg={errors.newEmail?.message}
             disabled={isSubmitting}
           />
           <PasswordField
@@ -72,47 +78,23 @@ export default function EmailChangeForm({ onSuccess }: EmailChangeFormProps) {
           </AppButton>
         </form>
       ) : (
-        <form
-          onSubmit={handleVerify}
-          className="flex flex-col gap-8 text-center"
-        >
-          <div>
-            <p className="text-muted-foreground mb-2">
-              We’ve sent a 6-digit code to
-            </p>
-            <span className="font-semibold text-foreground">{targetEmail}</span>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <AppInput
-              value={verificationCode}
-              onChange={(e) => setVerificationCode(e.target.value)}
-              label="Verification Code"
-              labelClassName="bg-surface"
-              placeholder="000000"
-              className="text-center tracking-[1em] font-bold text-2xl"
-              maxLength={6}
-            />
-
-            <AppButton intent="ghost" className="flex justify-end text-accent">
-              Resend code
-            </AppButton>
-          </div>
-
-          <div className="flex flex-col gap-3">
-            <AppButton type="submit" className="w-full">
-              Confirm Email Change
-            </AppButton>
-            <AppButton
-              intent="ghost"
-              type="button"
-              onClick={() => setStep("request")}
-              className="text-xs"
-            >
-              Back to edit email
-            </AppButton>
-          </div>
-        </form>
+        <div className="flex flex-col gap-3">
+          <p>
+            {resultMessage}
+            <span>{targetEmail}</span>
+          </p>
+          <AppButton type="submit" className="w-full">
+            OK
+          </AppButton>
+          <AppButton
+            intent="ghost"
+            type="button"
+            onClick={() => setStep("request")}
+            className="text-xs"
+          >
+            Back to edit email
+          </AppButton>
+        </div>
       )}
     </div>
   );

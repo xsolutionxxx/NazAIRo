@@ -1,5 +1,7 @@
 import axios from "axios";
 import { AuthResponse } from "@/features/auth/api/authResponse";
+import store from "@app/store/store";
+import { setAuth } from "@/features/auth/model/authSlice";
 
 export const API_URL = "http://localhost:5000/api";
 
@@ -8,32 +10,67 @@ const $api = axios.create({
   withCredentials: true,
 });
 
-$api.interceptors.request.use((config) => {
-  config.headers.Authorization = `Bearer ${localStorage.getItem("token")}`;
-  return config;
-});
+let isRefreshing = false;
+let failedQueue: {
+  resolve: (value?: unknown) => void;
+  reject: (reason?: unknown) => void;
+}[] = [];
+
+// розвантажуємо чергу після refresh
+const processQueue = (error: unknown) => {
+  failedQueue.forEach((p) => {
+    if (error) p.reject(error);
+    else p.resolve();
+  });
+  failedQueue = [];
+};
+
+const authUrls = ["/login", "/registration", "/refresh"];
 
 $api.interceptors.response.use(
-  (config) => {
-    return config;
-  },
+  (config) => config,
   async (error) => {
     const originalRequest = error.config;
+
+    const isAuthRequest = authUrls.some((url) =>
+      originalRequest.url?.includes(url),
+    );
+
     if (
-      error.response.status === 401 &&
-      error.config &&
-      !error.config._isRetry
+      error.response?.status === 401 &&
+      originalRequest &&
+      !originalRequest._isRetry &&
+      !isAuthRequest
     ) {
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then(() => $api.request(originalRequest))
+          .catch((err) => Promise.reject(err));
+      }
+
       originalRequest._isRetry = true;
+      isRefreshing = true;
+
       try {
-        const response = await axios<AuthResponse>("/refresh");
-        localStorage.setItem("token", response.data.accessToken);
+        await axios.get<AuthResponse>(`${API_URL}/refresh`, {
+          withCredentials: true,
+        });
+        processQueue(null);
         return $api.request(originalRequest);
       } catch (err) {
-        console.log("User Unauthorized", err);
+        processQueue(err);
+        localStorage.removeItem("was_logged_in");
+        store.dispatch(setAuth({ isAuth: false, user: null }));
+        window.location.href = "/login";
+        return Promise.reject(err);
+      } finally {
+        isRefreshing = false;
       }
     }
-    throw error;
+
+    return Promise.reject(error);
   },
 );
 

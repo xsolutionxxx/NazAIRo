@@ -1,37 +1,64 @@
 import $api from "@shared/api/index";
 import { AxiosResponse } from "axios";
 import { AuthResponse } from "./authResponse";
+import { AccountResponse } from "./accountResponse";
+import { UpdateProfileFields } from "../model/authActions";
 
-export default class AuthService {
+export class AuthService {
   static async registration(
     email: string,
     password: string,
-    confirmPassword: string,
     firstName: string,
     lastName: string,
     phone: string,
-    terms: boolean,
   ): Promise<AxiosResponse<AuthResponse>> {
     return $api.post<AuthResponse>("/registration", {
       email,
       password,
-      confirmPassword,
       firstName,
       lastName,
       phone,
-      terms,
     });
   }
 
   static async login(
     email: string,
     password: string,
-    rememberMe: boolean,
   ): Promise<AxiosResponse<AuthResponse>> {
-    return $api.post<AuthResponse>("/login", { email, password, rememberMe });
+    return $api.post<AuthResponse>("/login", { email, password });
   }
 
   static async logout(): Promise<void> {
     return $api.post("/logout");
+  }
+}
+
+export class AccountService {
+  static async changeEmail(
+    newEmail: string,
+    password: string,
+  ): Promise<AxiosResponse<AccountResponse>> {
+    return $api.post<AccountResponse>("/request-email-change", {
+      newEmail,
+      password,
+    });
+  }
+
+  static async changePassword(
+    currentPassword: string,
+    newPassword: string,
+    confirmNewPassword: string,
+  ): Promise<AxiosResponse<AccountResponse>> {
+    return $api.post<AccountResponse>("/change-password", {
+      currentPassword,
+      newPassword,
+      confirmNewPassword,
+    });
+  }
+
+  static async updateProfile(
+    fields: UpdateProfileFields,
+  ): Promise<AxiosResponse<AccountResponse>> {
+    return $api.patch<AccountResponse>("/update-profile", fields);
   }
 }

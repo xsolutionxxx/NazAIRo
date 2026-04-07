@@ -1,23 +1,20 @@
 import bcrypt from "bcrypt";
 import { v4 as uuidv4 } from "uuid";
 
+import { BCRYPT_ROUNDS } from "../shared/lib/constants.js";
+
 import prisma from "../shared/lib/prisma-db.js";
 import mailService from "./mail-service.js";
 import tokenService from "./token-service.js";
 import UserDto from "../dtos/user-dto.js";
 import ApiError from "../exceptions/api-error.js";
-import { id } from "zod/locales";
 
 class UserService {
   async registration(email, password, firstName, lastName, phone) {
-    const candidate = await prisma.user.findFirst({
-      where: {
-        OR: [{ email }, { phone }],
-      },
-    });
-    const preCandidate = await prisma.preUser.findFirst({
-      where: { OR: [{ email }, { phone }] },
-    });
+    const [candidate, preCandidate] = await Promise.all([
+      prisma.user.findFirst({ where: { OR: [{ email }, { phone }] } }),
+      prisma.preUser.findFirst({ where: { OR: [{ email }, { phone }] } }),
+    ]);
 
     if (candidate || preCandidate) {
       const field = candidate.email === email ? "email" : "phone";
@@ -26,7 +23,7 @@ class UserService {
       );
     }
 
-    const hashPassword = await bcrypt.hash(password, 3);
+    const hashPassword = await bcrypt.hash(password, BCRYPT_ROUNDS);
     const activationLink = uuidv4();
 
     await prisma.preUser.create({
@@ -119,7 +116,7 @@ class UserService {
     }
 
     const userData = tokenService.validateRefreshToken(refreshToken);
-    const tokenFromDb = tokenService.findToken(refreshToken);
+    const tokenFromDb = await tokenService.findToken(refreshToken);
 
     if (!userData || !tokenFromDb) {
       throw ApiError.UnauthorizedError();
@@ -143,12 +140,10 @@ class UserService {
     const isPassEquals = await bcrypt.compare(password, user.password);
     if (!isPassEquals) throw ApiError.BadRequest("Incorrect password");
 
-    const emailInUse = await prisma.user.findUnique({
-      where: { email: newEmail },
-    });
-    const emailInPre = await prisma.preUser.findUnique({
-      where: { email: newEmail },
-    });
+    const [emailInUse, emailInPre] = await Promise.all([
+      prisma.user.findUnique({ where: { email: newEmail } }),
+      prisma.preUser.findUnique({ where: { email: newEmail } }),
+    ]);
 
     if (emailInUse || emailInPre || user.email === newEmail) {
       throw ApiError.BadRequest(
@@ -165,7 +160,7 @@ class UserService {
       },
     });
 
-    await mailService.sendActivationMail(
+    await mailService.sendEmailChangeMail(
       newEmail,
       `${process.env.API_URL}/api/confirm-email-change/${activationLink}`,
     );
@@ -176,32 +171,28 @@ class UserService {
   }
 
   async confirmEmailChange(activationLink) {
-    try {
-      const user = await prisma.user.findUnique({
-        where: { activationLink: activationLink },
-      });
+    const user = await prisma.user.findUnique({
+      where: { activationLink: activationLink },
+    });
 
-      if (!user || !user.pendingEmail) {
-        throw ApiError.BadRequest("Invalid or expired confirmation link");
-      }
-
-      const updatedUser = await prisma.user.update({
-        where: { id: user.id },
-        data: {
-          email: user.pendingEmail,
-          pendingEmail: null,
-          activationLink: null,
-        },
-      });
-
-      const userDto = new UserDto(updatedUser);
-      const tokens = tokenService.generateTokens({ ...userDto });
-      await tokenService.saveToken(userDto.id, tokens.refreshToken);
-
-      return { ...tokens, user: userDto };
-    } catch (e) {
-      next(e);
+    if (!user || !user.pendingEmail) {
+      throw ApiError.BadRequest("Invalid or expired confirmation link");
     }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        email: user.pendingEmail,
+        pendingEmail: null,
+        activationLink: null,
+      },
+    });
+
+    const userDto = new UserDto(updatedUser);
+    const tokens = tokenService.generateTokens({ ...userDto });
+    await tokenService.saveToken(userDto.id, tokens.refreshToken);
+
+    return { ...tokens, user: userDto };
   }
 
   async changePassword(userId, currentPassword, newPassword) {
@@ -211,7 +202,7 @@ class UserService {
     if (!isPassEquals)
       throw ApiError.BadRequest("The exact password is incorrect");
 
-    const hashPassword = await bcrypt.hash(newPassword, 3);
+    const hashPassword = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
 
     const updatedUser = await prisma.user.update({
       where: { id: userId },
@@ -241,6 +232,14 @@ class UserService {
     });
 
     return new UserDto(updatedUser);
+  }
+
+  async getUsers() {
+    const users = await prisma.user.findMany({
+      select: { id: true, email: true, firstName: true, lastName: true },
+    });
+
+    return users;
   }
 }
 

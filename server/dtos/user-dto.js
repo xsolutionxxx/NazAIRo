@@ -4,8 +4,8 @@ export default class UserDto {
   firstName;
   lastName;
   phone;
-  address;
-  dateOfBirth;
+  /* address;
+  dateOfBirth; */
   avatarUrl;
   isActivated;
 
@@ -16,8 +16,8 @@ export default class UserDto {
     this.lastName = model.lastName;
     this.phone = model.phone;
     this.address = model.address;
-    this.dateOfBirth = model.dateOfBirth;
-    this.avatarUrl = model.avatarUrl;
+    /* this.dateOfBirth = model.dateOfBirth;
+    this.avatarUrl = model.avatarUrl; */
     this.isActivated = model.isActivated;
   }
 }

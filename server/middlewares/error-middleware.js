@@ -1,7 +1,7 @@
 import ApiError from "../exceptions/api-error.js";
 
 export default function (err, req, res, next) {
-  console.log(err);
+  console.error(err);
 
   if (err instanceof ApiError) {
     return res
@@ -9,5 +9,8 @@ export default function (err, req, res, next) {
       .json({ message: err.message, errors: err.errors });
   }
 
-  return res.status(500).json({ message: "An unexpected mistake" });
+  return res.status(500).json({
+    message: "Internal server error",
+    ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
+  });
 }

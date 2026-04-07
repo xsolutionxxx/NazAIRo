@@ -46,8 +46,7 @@ class TokenService {
       });
     }
 
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 15);
+    const expiresAt = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
 
     const token = await prisma.refreshToken.create({
       data: {

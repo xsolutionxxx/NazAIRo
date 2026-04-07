@@ -1,15 +1,15 @@
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 
 import PasswordField from "@features/auth/ui/PasswordField";
 import { AppButton } from "@shared/ui/appButton";
-import { passwordChangeSchema } from "@shared/schemas/user-schema.js";
+import {
+  passwordChangeSchema,
+  PasswordChangeFields,
+} from "@shared/schemas/user-schema";
 
 import { useAppDispatch, useAppSelector } from "@/shared/lib/hooks/redux";
-import { changePassword } from "../model/accountAction";
-
-type PasswordChangeFormFields = z.infer<typeof passwordChangeSchema>;
+import { changePassword } from "@features/auth/model/authActions";
 
 interface PasswordChangeFormProps {
   onSuccess?: () => void;
@@ -19,8 +19,8 @@ export default function PasswordChangeForm({
   onSuccess,
 }: PasswordChangeFormProps) {
   const dispatch = useAppDispatch();
-  const { error: serverError, accountLoadingStatus } = useAppSelector(
-    (state) => state.accountReducer,
+  const { error: serverError, authLoadingStatus } = useAppSelector(
+    (state) => state.authReducer,
   );
 
   const {
@@ -28,7 +28,7 @@ export default function PasswordChangeForm({
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<PasswordChangeFormFields>({
+  } = useForm<PasswordChangeFields>({
     defaultValues: {
       currentPassword: "",
       newPassword: "",
@@ -38,7 +38,7 @@ export default function PasswordChangeForm({
     resolver: zodResolver(passwordChangeSchema),
   });
 
-  const onSubmit: SubmitHandler<PasswordChangeFormFields> = async (data) => {
+  const onSubmit: SubmitHandler<PasswordChangeFields> = async (data) => {
     const resultAction = await dispatch(changePassword(data));
 
     if (changePassword.fulfilled.match(resultAction)) {
@@ -47,7 +47,7 @@ export default function PasswordChangeForm({
     }
   };
 
-  const isLoading = accountLoadingStatus === "loading" || isSubmitting;
+  const isLoading = authLoadingStatus === "loading" || isSubmitting;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-10">

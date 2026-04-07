@@ -1,33 +1,33 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Pencil } from "lucide-react";
 
 import { AppButton } from "@shared/ui/appButton";
-import { profileSchema } from "@shared/schemas/user-schema";
+
+import { useAppDispatch } from "@/shared/lib/hooks/redux";
+import { updateProfile } from "@features/auth/model/authActions";
 
 interface EditableFieldProps {
   label: string;
+  name: string;
   value?: string | null;
-  onSave?: (newValue: string) => Promise<void>;
 }
 
 export default function EditableField({
   label,
+  name,
   value,
-  onSave,
-  type,
 }: EditableFieldProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [currentValue, setCurrentValue] = useState<string>(value || "");
-  /* const [isLoading, setIsLoading] = useState(false);
+
+  const dispatch = useAppDispatch();
 
   const handleSave = async () => {
-    setIsLoading(true);
-    await onSave(currentValue);
-    setIsLoading(false);
+    await dispatch(updateProfile({ [name]: currentValue })).unwrap();
     setIsEditing(false);
-  }; */
+  };
 
   return (
     <div className="flex justify-between items-center gap-x-4">
@@ -48,10 +48,16 @@ export default function EditableField({
       </div>
       {isEditing ? (
         <div className="flex items-center gap-4">
-          <AppButton intent="ghost" onClick={() => setIsEditing(false)}>
+          <AppButton
+            intent="ghost"
+            onClick={() => {
+              setIsEditing(false);
+              setCurrentValue(value || "");
+            }}
+          >
             Cancel
           </AppButton>
-          <AppButton>Save</AppButton>
+          <AppButton onClick={handleSave}>Save</AppButton>
         </div>
       ) : (
         <AppButton

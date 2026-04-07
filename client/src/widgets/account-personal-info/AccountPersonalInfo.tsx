@@ -1,5 +1,6 @@
 "use client";
 
+import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Pencil } from "lucide-react";
 
@@ -11,13 +12,25 @@ import { AppTitle } from "@shared/ui/appTitle";
 import { AppButton } from "@shared/ui/appButton";
 import { AppModal } from "@shared/ui/appModal";
 
-import { useAppSelector } from "@/shared/lib/hooks/redux";
+import { useAppDispatch, useAppSelector } from "@shared/lib/hooks/redux";
+import { checkAuth } from "@features/auth/model/authActions";
 
 export default function AccountPersonalInfo() {
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
 
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.authReducer);
+
+  useEffect(() => {
+    if (searchParams.get("emailUpdated") === "true") {
+      dispatch(checkAuth());
+      router.replace("/account");
+    }
+  }, []);
 
   useEffect(() => {
     if (isPasswordModalOpen || isEmailModalOpen) {
@@ -71,11 +84,26 @@ export default function AccountPersonalInfo() {
           </AppButton>
         </div>
 
-        <EditableField label="First name" value={user?.firstName} />
+        <EditableField
+          key={user?.firstName}
+          label="First name"
+          name="firstName"
+          value={user?.firstName}
+        />
 
-        <EditableField label="Last name" value={user?.lastName} />
+        <EditableField
+          key={user?.lastName}
+          label="Last name"
+          name="lastName"
+          value={user?.lastName}
+        />
 
-        <EditableField label="Phone number" value={user?.phone} />
+        <EditableField
+          key={user?.phone}
+          label="Phone number"
+          name="phone"
+          value={user?.phone}
+        />
 
         {/* <EditableField label="Address" value={user?.address} />
         <EditableField label="Date of birth" value={user?.dateOfBirth} /> */}

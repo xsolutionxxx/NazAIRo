@@ -8,8 +8,16 @@ export default class ApiError extends Error {
     this.errors = errors;
   }
 
-  static UnauthorizedError() {
-    return new ApiError(401, "User unauthorized");
+  static NotFound(message = "Not found") {
+    return new ApiError(404, message);
+  }
+
+  static Forbidden(message = "Forbidden") {
+    return new ApiError(403, message);
+  }
+
+  static UnauthorizedError(message = "Unauthorized user") {
+    return new ApiError(401, message);
   }
 
   static BadRequest(message, errors = []) {
