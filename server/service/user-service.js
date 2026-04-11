@@ -17,7 +17,9 @@ class UserService {
     ]);
 
     if (candidate || preCandidate) {
-      const field = candidate.email === email ? "email" : "phone";
+      const existingUser = candidate || preCandidate;
+
+      const field = existingUser.email === email ? "email" : "phone";
       throw ApiError.BadRequest(
         `User with this ${field} already exists or waiting for activation`,
       );

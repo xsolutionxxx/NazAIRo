@@ -6,6 +6,8 @@ import { X, Plane, BedDouble } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Portal } from "@/shared/ui/portal";
 import { AppButton } from "@/shared/ui/appButton";
+import UserMenuMobile from "@/features/account/ui/UserMenuMobile";
+import { useAppSelector } from "@/shared/lib/hooks/redux";
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -13,6 +15,8 @@ interface MobileMenuProps {
 }
 
 export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
+  const { isAuth } = useAppSelector((state) => state.authReducer);
+
   return (
     <Portal>
       <AnimatePresence>
@@ -41,7 +45,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                 className="absolute top-5 right-4 p-0 h-auto"
               />
 
-              <nav className="mt-8">
+              <nav className="relative mt-8">
                 <ul className="flex flex-col gap-6">
                   <li onClick={onClose}>
                     <Link href="/fights">
@@ -59,20 +63,23 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                   </li>
                 </ul>
               </nav>
+              {isAuth ? (
+                <UserMenuMobile className="absolute bottom-0 left-0 w-full" />
+              ) : (
+                <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-max">
+                  <Link href="/login">
+                    <AppButton className="xs:px-7 font-semibold text-[#112211]">
+                      Login
+                    </AppButton>
+                  </Link>
 
-              <div className="absolute bottom-14 left-1/2 -translate-x-1/2 w-max flex items-center justify-center bg-primary rounded">
-                <Link href="/login">
-                  <AppButton className="xs:px-7 font-semibold text-[#112211]">
-                    Login
-                  </AppButton>
-                </Link>
-
-                <Link href="/sign-up">
-                  <AppButton className="xs:px-5 bg-foreground font-semibold text-surface">
-                    Sign Up
-                  </AppButton>
-                </Link>
-              </div>
+                  <Link href="/sign-up">
+                    <AppButton className="xs:px-5 bg-foreground font-semibold text-surface">
+                      Sign Up
+                    </AppButton>
+                  </Link>
+                </div>
+              )}
             </motion.div>
           </>
         )}
