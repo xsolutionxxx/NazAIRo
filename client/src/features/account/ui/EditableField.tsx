@@ -7,6 +7,8 @@ import { AppButton } from "@shared/ui/appButton";
 
 import { useAppDispatch } from "@/shared/lib/hooks/redux";
 import { updateProfile } from "@features/auth/model/authActions";
+import { profileSchema } from "@shared/schemas/user-schema";
+import { InputErrorMessage } from "@shared/ui/inputErrorMessage";
 
 interface EditableFieldProps {
   label: string;
@@ -21,12 +23,36 @@ export default function EditableField({
 }: EditableFieldProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [currentValue, setCurrentValue] = useState<string>(value || "");
+  const [error, setError] = useState<string | null>(null);
 
   const dispatch = useAppDispatch();
 
   const handleSave = async () => {
-    await dispatch(updateProfile({ [name]: currentValue })).unwrap();
+    const result = profileSchema.partial().safeParse({
+      [name]: currentValue,
+    });
+
+    if (!result.success) {
+      const errorMap = result.error.flatten().fieldErrors;
+      const fieldError = errorMap[name as keyof typeof errorMap]?.[0];
+
+      setError(fieldError || "Invalid format");
+      return;
+    }
+
+    try {
+      setError(null);
+      await dispatch(updateProfile({ [name]: currentValue })).unwrap();
+      setIsEditing(false);
+    } catch (err) {
+      setError("Server error");
+    }
+  };
+
+  const handleCancel = () => {
     setIsEditing(false);
+    setCurrentValue(value || "");
+    setError(null);
   };
 
   return (
@@ -34,27 +60,36 @@ export default function EditableField({
       <div className="flex flex-col justify-start gap-y-2">
         <p className="capitalize opacity-75">{label}</p>
         {isEditing ? (
-          <input
-            value={currentValue}
-            onChange={(e) => setCurrentValue(e.target.value)}
-            className="pb-2 h-7 w-37.5 md:w-full border-b focus:border-primary outline-none font-semibold text-xl placeholder:font-normal placeholder:opacity-80 transition-all"
-            placeholder={value || ""}
-          />
+          <div className="relative flex flex-col gap-y-1">
+            <input
+              value={currentValue}
+              onChange={(e) => {
+                setCurrentValue(e.target.value);
+                if (error) setError(null);
+              }}
+              className={`pb-2 h-7 w-full border-b outline-none font-semibold text-xl transition-all ${
+                error
+                  ? "border-destructive text-destructive"
+                  : "border-gray-300 focus:border-primary"
+              }`}
+              autoFocus
+            />
+            {error && (
+              <InputErrorMessage
+                message={error}
+                className="-bottom-6.5 left-0"
+              />
+            )}
+          </div>
         ) : (
-          <p className="w-37.5 md:w-full font-semibold text-xl truncate">
+          <p className="w-full font-semibold text-xl truncate leading-tight">
             {value}
           </p>
         )}
       </div>
       {isEditing ? (
         <div className="flex items-center gap-4">
-          <AppButton
-            intent="ghost"
-            onClick={() => {
-              setIsEditing(false);
-              setCurrentValue(value || "");
-            }}
-          >
+          <AppButton intent="ghost" onClick={handleCancel}>
             Cancel
           </AppButton>
           <AppButton onClick={handleSave}>Save</AppButton>

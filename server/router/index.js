@@ -24,6 +24,11 @@ router.post("/logout", userController.logout);
 router.get("/activate/:link", userController.activate);
 router.get("/refresh", userController.refresh);
 router.get("/confirm-email-change/:link", userController.confirmEmailChange);
+router.get(
+  "/email-change-status",
+  authMiddleware,
+  userController.checkEmailChangeStatus,
+);
 
 router.post(
   "/request-email-change",

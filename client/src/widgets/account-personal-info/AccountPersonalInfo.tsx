@@ -16,21 +16,31 @@ import { useAppDispatch, useAppSelector } from "@shared/lib/hooks/redux";
 import { checkAuth } from "@features/auth/model/authActions";
 
 export default function AccountPersonalInfo() {
-  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
-
   const searchParams = useSearchParams();
   const router = useRouter();
+
+  const isEmailUpdated = searchParams.get("emailUpdated") === "true";
+
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(isEmailUpdated);
 
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.authReducer);
 
   useEffect(() => {
-    if (searchParams.get("emailUpdated") === "true") {
-      dispatch(checkAuth());
-      router.replace("/account");
+    if (isEmailUpdated) {
+      dispatch(checkAuth())
+        .unwrap()
+        .then(() => {
+          setIsVerifying(false);
+          router.replace("/account");
+        })
+        .catch(() => {
+          router.push("/login");
+        });
     }
-  }, []);
+  }, [isEmailUpdated, dispatch, router]);
 
   useEffect(() => {
     if (isPasswordModalOpen || isEmailModalOpen) {
@@ -43,6 +53,17 @@ export default function AccountPersonalInfo() {
       document.body.style.overflow = "";
     };
   }, [isPasswordModalOpen, isEmailModalOpen]);
+
+  if (isVerifying) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+        <p className="text-muted-foreground animate-pulse text-lg tabular-nums">
+          Updating your session...
+        </p>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -104,9 +125,6 @@ export default function AccountPersonalInfo() {
           name="phone"
           value={user?.phone}
         />
-
-        {/* <EditableField label="Address" value={user?.address} />
-        <EditableField label="Date of birth" value={user?.dateOfBirth} /> */}
       </div>
 
       <AppModal
@@ -122,9 +140,9 @@ export default function AccountPersonalInfo() {
         isOpen={isEmailModalOpen}
         onClose={() => setIsEmailModalOpen(false)}
         titleText="Change Email"
-        subtitleText="Fill in the fields below to set a new password for your account."
+        subtitleText="Enter your new email address and confirm it with your password to receive a verification link."
       >
-        <EmailChangeForm />
+        <EmailChangeForm onSuccess={() => setIsEmailModalOpen(false)} />
       </AppModal>
     </>
   );

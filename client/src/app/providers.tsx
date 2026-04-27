@@ -11,7 +11,22 @@ function AuthInitializer({ children }: { children: ReactNode }) {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (localStorage.getItem("was_logged_in")) {
+    // 1. Перевіряємо localStorage
+    const wasLoggedIn = localStorage.getItem("was_logged_in");
+
+    // 2. Перевіряємо URL через стандартний Web API (надійніше для клієнта)
+    const urlParams = new URLSearchParams(window.location.search);
+    const isEmailUpdated = urlParams.get("emailUpdated") === "true";
+
+    console.log("AuthInitializer check:", { wasLoggedIn, isEmailUpdated });
+
+    if (wasLoggedIn || isEmailUpdated) {
+      // Якщо ми зайшли через зміну пошти, обов'язково ставимо мітку в localStorage,
+      // щоб наступні переходи по сторінках не викидали нас, поки checkAuth не завершиться.
+      if (isEmailUpdated) {
+        localStorage.setItem("was_logged_in", "true");
+      }
+
       dispatch(checkAuth());
     }
   }, [dispatch]);

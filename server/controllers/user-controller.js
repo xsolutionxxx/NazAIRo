@@ -5,17 +5,20 @@ import {
 } from "../shared/lib/constants.js";
 
 const setAuthCookies = (res, userData) => {
-  res.cookie("refreshToken", userData.refreshToken, {
-    maxAge: REFRESH_TOKEN_MAX_AGE,
+  const commonOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    sameSite: "lax",
+    path: "/",
+  };
+
+  res.cookie("refreshToken", userData.refreshToken, {
+    ...commonOptions,
+    maxAge: REFRESH_TOKEN_MAX_AGE,
   });
   res.cookie("accessToken", userData.accessToken, {
+    ...commonOptions,
     maxAge: ACCESS_TOKEN_MAX_AGE,
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
   });
 };
 
@@ -119,6 +122,16 @@ class UserController {
       return res.redirect(
         `${process.env.CLIENT_URL}/account?error=invalid-link`,
       );
+    }
+  }
+
+  async checkEmailChangeStatus(req, res, next) {
+    try {
+      const { id } = req.user;
+      const status = await userService.checkEmailChangeStatus(id);
+      return res.json(status);
+    } catch (e) {
+      next(e);
     }
   }
 

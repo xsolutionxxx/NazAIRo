@@ -45,29 +45,30 @@ export default function UserMenu({ className }: UserMenuProps) {
   };
 
   return (
-    <div className="relative">
+    <div className="relative hidden md:block w-full">
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-        <DropdownMenuTrigger asChild onMouseEnter={() => setIsOpen(true)}>
-          <div
-            className={cn(
-              "relative hidden md:flex items-center gap-3",
-              className,
-            )}
-          >
-            <div className="relative">
-              <UserAvatar
-                src="/profile-placeholder.png"
-                className="w-10 h-10"
-              />
-              <div className="absolute bottom-px -right-px p-px rounded-full bg-accent">
-                <ChevronDown strokeWidth={1.5} size={12} color="#112211" />
-              </div>
+        <DropdownMenuTrigger
+          className="absolute inset-0 z-30"
+          onMouseEnter={() => setIsOpen(true)}
+        />
+
+        <Link
+          href="/account"
+          className={cn(
+            "relative z-20 flex items-center gap-3 pointer-events-none",
+            className,
+          )}
+        >
+          <div className="relative pointer-events-auto">
+            <UserAvatar src="/profile-placeholder.png" className="w-10 h-10" />
+            <div className="absolute bottom-px -right-px p-px rounded-full bg-accent">
+              <ChevronDown strokeWidth={1.5} size={12} color="#112211" />
             </div>
-            <span className="font-semibold">
-              {user?.firstName} {user?.lastName?.[0]}.
-            </span>
           </div>
-        </DropdownMenuTrigger>
+          <span className="font-semibold pointer-events-auto">
+            {user?.firstName} {user?.lastName?.[0]}.
+          </span>
+        </Link>
 
         <DropdownMenuContent
           className="p-7 min-w-80 flex flex-col gap-4 bg-surface border-none rounded-xl font-medium"
@@ -145,7 +146,7 @@ export default function UserMenu({ className }: UserMenuProps) {
             <DropdownMenuItem className="focus:bg-transparent hover:bg-transparent cursor-pointer">
               <AppButton
                 intent="ghost"
-                className="font-medium md:hover:text-accent"
+                className="p-0 font-medium md:hover:text-accent"
                 onClick={() => handleLogout()}
               >
                 <LogOut strokeWidth={2.5} size={18} />

@@ -1,8 +1,8 @@
 import * as React from "react";
 import { LucideIcon } from "lucide-react";
 
-import { cn } from "@/shared/lib/utils";
-import { InputErrorMessage } from "@/shared/ui/inputErrorMessage";
+import { cn } from "@shared/lib/utils";
+import { InputErrorMessage } from "@shared/ui/inputErrorMessage";
 
 interface AppInputProps extends React.ComponentPropsWithRef<"input"> {
   label?: string;

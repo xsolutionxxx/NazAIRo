@@ -56,7 +56,7 @@ export const AppModal = ({
               onClick={onClose}
               className="absolute top-5 right-6"
             />
-            <div className="mb-12">
+            <div className="mb-6">
               <AppTitle text={titleText} className="mb-4" />
               <p>{subtitleText}</p>
             </div>

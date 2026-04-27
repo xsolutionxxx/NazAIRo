@@ -139,9 +139,6 @@ class UserService {
   async requestEmailChange(userId, newEmail, password) {
     const user = await prisma.user.findUnique({ where: { id: userId } });
 
-    const isPassEquals = await bcrypt.compare(password, user.password);
-    if (!isPassEquals) throw ApiError.BadRequest("Incorrect password");
-
     const [emailInUse, emailInPre] = await Promise.all([
       prisma.user.findUnique({ where: { email: newEmail } }),
       prisma.preUser.findUnique({ where: { email: newEmail } }),
@@ -152,6 +149,9 @@ class UserService {
         "User with this email already exists or waiting for activation",
       );
     }
+
+    const isPassEquals = await bcrypt.compare(password, user.password);
+    if (!isPassEquals) throw ApiError.BadRequest("Incorrect password");
 
     const activationLink = uuidv4();
     await prisma.user.update({
@@ -173,6 +173,10 @@ class UserService {
   }
 
   async confirmEmailChange(activationLink) {
+    if (!activationLink) {
+      throw ApiError.BadRequest("Confirmation link is missing");
+    }
+
     const user = await prisma.user.findUnique({
       where: { activationLink: activationLink },
     });
@@ -195,6 +199,11 @@ class UserService {
     await tokenService.saveToken(userDto.id, tokens.refreshToken);
 
     return { ...tokens, user: userDto };
+  }
+
+  async checkEmailChangeStatus(userId) {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    return { isPending: !!user.pendingEmail };
   }
 
   async changePassword(userId, currentPassword, newPassword) {

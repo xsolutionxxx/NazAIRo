@@ -51,7 +51,11 @@ export const ThemeToggleVortex = ({ className }: { className?: string }) => {
   }, []);
 
   if (!mounted) {
-    return <div className={cn("w-7 h-7 lg:w-9 lg:h-9", className)} />;
+    return (
+      <div
+        className={cn("w-7 h-7 md:w-8.5 md:h-8.5 lg:w-9 lg:h-9", className)}
+      />
+    );
   }
 
   const isDark = theme === "dark";
@@ -60,7 +64,7 @@ export const ThemeToggleVortex = ({ className }: { className?: string }) => {
     <button
       onClick={() => setTheme(isDark ? "light" : "dark")}
       className={cn(
-        "relative w-7 h-7 md:w-8.5 md:h-8.5 lg:w-9 lg:h-9 flex items-center justify-center rounded-full cursor-pointer transition-colors md:hover:bg-black/10 md:dark:hover:bg-white/10",
+        "relative p-4.5 w-7 h-7 md:w-8.5 md:h-8.5 lg:w-9 lg:h-9 flex items-center justify-center rounded-full cursor-pointer transition-colors md:hover:bg-black/10 md:dark:hover:bg-white/10",
         className,
       )}
       aria-label="Toggle Theme"

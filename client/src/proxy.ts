@@ -27,12 +27,17 @@ async function verifyToken(token: string): Promise<boolean> {
 
 export default async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
+  const searchParams = req.nextUrl.searchParams;
+
+  // ← пропускаємо перевірку токенів для email confirmation redirect
+  if (searchParams.get("emailUpdated") === "true") {
+    return NextResponse.next();
+  }
 
   const accessToken = req.cookies.get("accessToken")?.value;
   const refreshToken = req.cookies.get("refreshToken")?.value;
 
   const hasValidAccess = accessToken ? await verifyToken(accessToken) : false;
-
   const isLoggedIn = hasValidAccess || !!refreshToken;
 
   if (isAuthPage(pathname) && isLoggedIn) {
@@ -41,7 +46,6 @@ export default async function proxy(req: NextRequest) {
 
   if (isProtectedRoute(pathname) && !isLoggedIn) {
     const loginUrl = new URL("/login", req.url);
-
     loginUrl.searchParams.set("from", pathname);
     return NextResponse.redirect(loginUrl);
   }

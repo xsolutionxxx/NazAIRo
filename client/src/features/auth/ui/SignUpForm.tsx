@@ -159,7 +159,7 @@ export default function SignUpForm() {
       />
 
       {serverError && (
-        <div className="p-3 text-sm text-white bg-red-500 rounded-md">
+        <div className="p-3 text-sm text-white bg-destructive rounded-md">
           {serverError}
         </div>
       )}
