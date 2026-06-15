@@ -1,61 +1,261 @@
 generator client {
- provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
 }
 
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum Role {
+  CLIENT
+  ADMIN
+}
+
+enum BookingType {
+  FLIGHT
+  HOTEL
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  REFUNDED
+  FAILED
+}
+
+enum CabinClass {
+  ECONOMY
+  PREMIUM_ECONOMY
+  BUSINESS
+  FIRST
+}
+
+// ─── Auth & Users ─────────────────────────────────────────────────────────────
+
 model User {
-  id              String   @id @default(uuid())
-  email           String   @unique
-  pendingEmail    String?  @unique
-  password        String
-  firstName       String
-  lastName        String
-  phone           String   @unique
-  address         String?
-  dateOfBirth     DateTime?
-  avatarUrl       String?
-  backgroundUrl   String?
-  
-  activationLink  String?  @unique
+  id             String   @id @default(uuid())
+  email          String   @unique
+  pendingEmail   String?  @unique
+  password       String
+  firstName      String
+  lastName       String
+  phone          String   @unique
+  address        String?
+  dateOfBirth    DateTime?
+  avatarUrl      String?
+  backgroundUrl  String?
+  role             Role     @default(CLIENT)
+  isActivated      Boolean  @default(false)
+  activationLink   String?  @unique
+  stripeCustomerId String?  @unique
 
-  paymentMethods  PaymentMethod[]
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  paymentMethods PaymentMethod[]
+  refreshTokens  RefreshToken[]
+  bookings       Booking[]
 
-  refreshTokens   RefreshToken[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model PreUser {
-  id              String   @id @default(uuid())
-  email           String   @unique
-  password        String
-  firstName       String
-  lastName        String
-  phone           String   @unique
-  activationLink  String   @unique
-  createdAt       DateTime @default(now())
+  id             String   @id @default(uuid())
+  email          String   @unique
+  password       String
+  firstName      String
+  lastName       String
+  phone          String   @unique
+  activationLink String   @unique
+  createdAt      DateTime @default(now())
 }
 
 model RefreshToken {
-  id           String   @id @default(uuid())
-  token        String   @unique @db.Text
-  userId       String
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userAgent    String?  
-  ip           String?  
-  expiresAt    DateTime
-  createdAt    DateTime @default(now())
+  id        String   @id @default(uuid())
+  token     String   @unique @db.Text
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userAgent String?
+  ip        String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
 }
 
 model PaymentMethod {
-  id           String  @id @default(uuid())
-  type         String
-  lastFour     String
-  providerId   String
-  isDefault    Boolean @default(false)
-  userId       String
-  user         User    @relation(fields: [userId], references: [id])
+  id         String  @id @default(uuid())
+  type       String
+  lastFour   String
+  providerId String
+  isDefault  Boolean @default(false)
+  userId     String
+  user       User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─── Aviation ─────────────────────────────────────────────────────────────────
+
+model Airline {
+  id      String   @id @default(uuid())
+  iata    String   @unique
+  name    String
+  logoUrl String?
+  flights Flight[]
+}
+
+model Airport {
+  id       String   @id @default(uuid())
+  iata     String   @unique
+  name     String
+  city     String
+  country  String
+  timezone String?
+
+  departureFlights Flight[] @relation("DepartureAirport")
+  arrivalFlights   Flight[] @relation("ArrivalAirport")
+}
+
+model Flight {
+  id                 String     @id @default(uuid())
+  flightNumber       String
+  airlineId          String
+  airline            Airline    @relation(fields: [airlineId], references: [id])
+  departureAirportId String
+  departureAirport   Airport    @relation("DepartureAirport", fields: [departureAirportId], references: [id])
+  arrivalAirportId   String
+  arrivalAirport     Airport    @relation("ArrivalAirport", fields: [arrivalAirportId], references: [id])
+  departureTime      DateTime
+  arrivalTime        DateTime
+  price              Decimal    @db.Decimal(10, 2)
+  cabinClass         CabinClass @default(ECONOMY)
+  availableSeats     Int
+  totalSeats         Int
+  amenities          String[]
+
+  flightBookings FlightBooking[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([departureAirportId, arrivalAirportId, departureTime])
+}
+
+// ─── Hotels ───────────────────────────────────────────────────────────────────
+
+model Hotel {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  city        String
+  country     String
+  address     String
+  rating      Decimal  @db.Decimal(2, 1)
+  stars       Int
+  imageUrls   String[]
+  amenities   String[]
+  latitude    Decimal? @db.Decimal(9, 6)
+  longitude   Decimal? @db.Decimal(9, 6)
+
+  rooms Room[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Room {
+  id            String   @id @default(uuid())
+  hotelId       String
+  hotel         Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  roomNumber    String
+  type          String
+  description   String?
+  pricePerNight Decimal  @db.Decimal(10, 2)
+  capacity      Int
+  amenities     String[]
+  imageUrls     String[]
+  isAvailable   Boolean  @default(true)
+
+  hotelBookings HotelBooking[]
+
+  @@unique([hotelId, roomNumber])
+}
+
+// ─── Bookings ─────────────────────────────────────────────────────────────────
+
+model Booking {
+  id                   String        @id @default(uuid())
+  userId               String
+  user                 User          @relation(fields: [userId], references: [id])
+  type                 BookingType
+  status               BookingStatus @default(PENDING)
+  totalPrice           Decimal       @db.Decimal(10, 2)
+  stripePaymentIntentId String?      @unique
+  currency             String        @default("USD")
+
+  flightBooking FlightBooking?
+  hotelBooking  HotelBooking?
+  payment       Payment?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model FlightBooking {
+  id         String   @id @default(uuid())
+  bookingId  String   @unique
+  booking    Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  flightId   String
+  flight     Flight   @relation(fields: [flightId], references: [id])
+  seatCount  Int
+  cabinClass CabinClass
+
+  passengers Passenger[]
+}
+
+model HotelBooking {
+  id        String   @id @default(uuid())
+  bookingId String   @unique
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  roomId    String
+  room      Room     @relation(fields: [roomId], references: [id])
+  checkIn   DateTime
+  checkOut  DateTime
+  guestCount Int
+
+  guests Passenger[]
+}
+
+model Passenger {
+  id              String   @id @default(uuid())
+  firstName       String
+  lastName        String
+  dateOfBirth     DateTime
+  passportNumber  String
+  nationality     String
+
+  flightBookingId String?
+  flightBooking   FlightBooking? @relation(fields: [flightBookingId], references: [id], onDelete: Cascade)
+
+  hotelBookingId  String?
+  hotelBooking    HotelBooking?  @relation(fields: [hotelBookingId], references: [id], onDelete: Cascade)
+}
+
+model Payment {
+  id                   String        @id @default(uuid())
+  bookingId            String        @unique
+  booking              Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  stripePaymentIntentId String       @unique
+  stripeChargeId       String?
+  amount               Decimal       @db.Decimal(10, 2)
+  currency             String        @default("USD")
+  status               PaymentStatus @default(PENDING)
+  paidAt               DateTime?
+  refundedAt           DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

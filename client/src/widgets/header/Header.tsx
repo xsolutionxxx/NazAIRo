@@ -92,7 +92,7 @@ export default function Header({
       >
         <Container className="flex justify-between items-center">
           <div className="hidden md:flex items-center gap-6 lg:gap-8">
-            <Link href="/fights">
+            <Link href="/flights">
               <AppButton intent="ghost" icon={Plane} className={textColor}>
                 Find Flight
               </AppButton>

@@ -1,34 +1,39 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-
+import { useRouter, useSearchParams } from "next/navigation";
 import { TabItem } from "@/shared/ui/tabItem";
 
 const TABS = [
-  { label: "Cheapest", href: "/cheapest" },
-  { label: "Best", href: "/account/best" },
-  { label: "Quickest", href: "/account/quickest" },
+  { label: "Cheapest", sortBy: "price", sortOrder: "asc" },
+  { label: "Fastest", sortBy: "duration", sortOrder: "asc" },
+  { label: "Earliest", sortBy: "departure", sortOrder: "asc" },
 ];
 
-export default function TabsList({ className }: { className?: string }) {
-  const pathname = usePathname();
+export default function FlightsTabsList({ className }: { className?: string }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const currentSort = searchParams.get("sortBy") ?? "price";
+
+  const handleSort = (sortBy: string, sortOrder: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("sortBy", sortBy);
+    params.set("sortOrder", sortOrder);
+    router.push(`/flights?${params.toString()}`);
+  };
 
   return (
     <div
-      className={`py-4 px-6 min-h-20 grid grid-cols-3 items-center gap-y-10 gap-x-6 bg-surface rounded-2xl ${className}`}
+      className={`py-4 px-6 min-h-20 grid grid-cols-3 items-center gap-y-10 gap-x-6 bg-surface rounded-2xl border border-[#D7E2EE] ${className}`}
     >
-      {TABS.map((tab, index) => {
-        return (
-          <Link
-            key={tab.href}
-            href={tab.href}
-            className={`${index !== TABS.length - 1 && "pr-6 border-r border-[#D7E2EE]"}`}
-          >
-            <TabItem label={tab.label} isActive={pathname === tab.href} />
-          </Link>
-        );
-      })}
+      {TABS.map((tab, index) => (
+        <div
+          key={tab.label}
+          onClick={() => handleSort(tab.sortBy, tab.sortOrder)}
+          className={`cursor-pointer ${index !== TABS.length - 1 ? "pr-6 border-r border-[#D7E2EE]" : ""}`}
+        >
+          <TabItem label={tab.label} isActive={currentSort === tab.sortBy} />
+        </div>
+      ))}
     </div>
   );
 }

@@ -246,11 +246,14 @@ class UserService {
   }
 
   async getUsers() {
-    const users = await prisma.user.findMany({
-      select: { id: true, email: true, firstName: true, lastName: true },
+    return prisma.user.findMany({
+      select: {
+        id: true, email: true, firstName: true, lastName: true,
+        phone: true, role: true, isActivated: true,
+        avatarUrl: true, createdAt: true,
+      },
+      orderBy: { createdAt: "desc" },
     });
-
-    return users;
   }
 }
 

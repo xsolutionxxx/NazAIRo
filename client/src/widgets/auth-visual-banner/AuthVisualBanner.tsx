@@ -34,11 +34,11 @@ export default function AuthVisualBanner() {
     setSelectedIndex(api.selectedScrollSnap());
 
     api.on("select", onSelect);
-    api.on("reinit", onSelect);
+    api.on("reInit", onSelect);
 
     return () => {
       api.off("select", onSelect);
-      api.off("reinit", onSelect);
+      api.off("reInit", onSelect);
     };
   }, [api, onSelect]);
 
