@@ -25,11 +25,10 @@ async function verifyToken(token: string): Promise<boolean> {
   }
 }
 
-export default async function proxy(req: NextRequest) {
+export default async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const searchParams = req.nextUrl.searchParams;
 
-  // ← пропускаємо перевірку токенів для email confirmation redirect
   if (searchParams.get("emailUpdated") === "true") {
     return NextResponse.next();
   }
