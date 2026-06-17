@@ -84,7 +84,7 @@ export default function Payments() {
     };
 
     return (
-        <div className="w-full">
+        <div className="w-full mb-26">
             <div className="flex items-center justify-between mb-6">
                 <AppTitle
                     as="h1"

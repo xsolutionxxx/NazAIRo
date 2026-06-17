@@ -38,7 +38,7 @@ export default function History() {
     const list = tab === "flights" ? flights : stays;
 
     return (
-        <div className="w-full">
+        <div className="w-full mb-26">
             <AppTitle
                 as="h1"
                 size="lg"
