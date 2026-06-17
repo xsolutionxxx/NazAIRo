@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
     ChevronDown,
     User,
@@ -35,13 +35,14 @@ export default function UserMenu({ className }: UserMenuProps) {
     const [isOpen, setIsOpen] = useState(false);
 
     const dispatch = useAppDispatch();
+    const router = useRouter();
     const { user } = useAppSelector((state) => state.authReducer);
 
     const handleLogout = async () => {
         const resultAction = await dispatch(logout());
 
         if (logout.fulfilled.match(resultAction)) {
-            redirect("/");
+            router.push("/");
         }
     };
 

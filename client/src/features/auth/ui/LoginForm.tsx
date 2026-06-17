@@ -1,6 +1,6 @@
 "use client";
 
-import { redirect } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,6 +17,8 @@ import { login } from "../model/authActions";
 
 export default function LoginForm() {
   const dispatch = useAppDispatch();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const { error: serverError, authLoadingStatus } = useAppSelector(
     (state) => state.authReducer,
   );
@@ -40,7 +42,8 @@ export default function LoginForm() {
 
     if (login.fulfilled.match(resultAction)) {
       reset();
-      redirect("/account");
+      const from = searchParams.get("from") || "/account";
+      router.push(from);
     }
   };
 

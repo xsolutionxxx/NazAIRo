@@ -1,6 +1,6 @@
 "use client";
 
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,6 +21,7 @@ import { registration } from "../model/authActions";
 
 export default function SignUpForm() {
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const { error: serverError, authLoadingStatus } = useAppSelector(
     (state) => state.authReducer,
   );
@@ -51,7 +52,7 @@ export default function SignUpForm() {
 
     if (registration.fulfilled.match(resultAction)) {
       reset();
-      redirect(`/verify-email?email=${encodeURIComponent(data.email)}`);
+      router.push(`/verify-email?email=${encodeURIComponent(data.email)}`);
     }
   };
 

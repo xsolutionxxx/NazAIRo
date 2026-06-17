@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
     User,
     History,
@@ -50,12 +50,13 @@ const accountMenu = [
 export default function UserMenuMobile({ className }: UserMenuMobileProps) {
     const { user } = useAppSelector((state) => state.authReducer);
     const dispatch = useAppDispatch();
+    const router = useRouter();
 
     const handleLogout = async () => {
         const resultAction = await dispatch(logout());
 
         if (logout.fulfilled.match(resultAction)) {
-            redirect("/");
+            router.push("/");
         }
     };
 
