@@ -40,7 +40,22 @@ app.use(morgan(morganFormat, {
 
 // ─── Stripe webhook — raw body, must come BEFORE express.json() ──────────────
 app.use(cookieParser());
-app.use(cors({ credentials: true, origin: process.env.CLIENT_URL }));
+
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "http://localhost:3000",
+].filter(Boolean);
+
+app.use(cors({
+  credentials: true,
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS: origin ${origin} not allowed`));
+    }
+  },
+}));
 app.use("/api/webhook", webhookRouter);
 
 // ─── Static uploads ───────────────────────────────────────────────────────────
