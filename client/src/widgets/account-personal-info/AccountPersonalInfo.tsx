@@ -26,7 +26,7 @@ export default function AccountPersonalInfo() {
   const [isVerifying, setIsVerifying] = useState(isEmailUpdated);
 
   const dispatch = useAppDispatch();
-  const { user } = useAppSelector((state) => state.authReducer);
+  const { user, authLoadingStatus } = useAppSelector((state) => state.authReducer);
 
   useEffect(() => {
     if (isEmailUpdated) {
@@ -61,6 +61,22 @@ export default function AccountPersonalInfo() {
         <p className="text-muted-foreground animate-pulse text-lg tabular-nums">
           Updating your session...
         </p>
+      </div>
+    );
+  }
+
+  if (!user && authLoadingStatus === "loading") {
+    return (
+      <div className="mb-26 py-8 px-4 sm:px-6 flex flex-col gap-y-8 bg-surface rounded-2xl">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="flex justify-between items-center gap-4">
+            <div className="flex flex-col gap-2 flex-1">
+              <div className="h-3 w-20 bg-foreground/10 rounded animate-pulse" />
+              <div className="h-6 w-48 bg-foreground/10 rounded animate-pulse" />
+            </div>
+            <div className="h-9 w-20 bg-foreground/10 rounded-xl animate-pulse" />
+          </div>
+        ))}
       </div>
     );
   }

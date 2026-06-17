@@ -15,10 +15,22 @@ export default function EditableAvatar() {
   const [isUploading, setIsUploading] = useState(false);
 
   const dispatch = useAppDispatch();
-  const { user } = useAppSelector((state) => state.authReducer);
+  const { user, authLoadingStatus } = useAppSelector((state) => state.authReducer);
 
   const resolvedSrc = previewUrl
     ?? (user?.avatarUrl ? `${SERVER_URL}${user.avatarUrl}` : null);
+
+  if (!user && authLoadingStatus === "loading") {
+    return (
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-40 h-40 rounded-full bg-surface animate-pulse border-4 border-accent" />
+        <div className="flex flex-col items-center gap-2">
+          <div className="h-5 w-32 bg-surface rounded animate-pulse" />
+          <div className="h-3 w-44 bg-surface rounded animate-pulse" />
+        </div>
+      </div>
+    );
+  }
 
   const handleEditClick = () => fileInputRef.current?.click();
 

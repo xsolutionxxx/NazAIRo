@@ -1,12 +1,11 @@
 "use client";
 
 import { ThemeProvider } from "next-themes";
-import { ReactNode, Suspense, useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { Provider } from "react-redux";
 import store from "./store/store";
 import { useAppDispatch } from "@shared/lib/hooks/redux";
 import { checkAuth } from "@/features/auth/model/authActions";
-import PageLoader from "@shared/ui/PageLoader";
 
 function AuthInitializer({ children }: { children: ReactNode }) {
   const dispatch = useAppDispatch();
@@ -49,9 +48,6 @@ export function Providers({ children }: { children: ReactNode }) {
             enableSystem={false}
             disableTransitionOnChange
           >
-            <Suspense>
-              <PageLoader />
-            </Suspense>
             {children}
           </ThemeProvider>
         )}
