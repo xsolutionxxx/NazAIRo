@@ -2,7 +2,7 @@ import axios from "axios";
 import { AuthResponse } from "@/features/auth/api/authResponse";
 import { setAuth } from "@/features/auth/model/authSlice";
 
-export const API_URL = "http://localhost:5000/api";
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 const $api = axios.create({
   baseURL: API_URL,

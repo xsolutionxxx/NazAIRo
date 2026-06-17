@@ -64,7 +64,7 @@ export default function UserMenu({ className }: UserMenuProps) {
                         <UserAvatar
                             src={
                                 user?.avatarUrl
-                                    ? `http://localhost:5000${user.avatarUrl}`
+                                    ? `${process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") ?? "http://localhost:5000"}${user.avatarUrl}`
                                     : undefined
                             }
                             className="w-10 h-10"
@@ -91,7 +91,7 @@ export default function UserMenu({ className }: UserMenuProps) {
                         <UserAvatar
                             src={
                                 user?.avatarUrl
-                                    ? `http://localhost:5000${user.avatarUrl}`
+                                    ? `${process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") ?? "http://localhost:5000"}${user.avatarUrl}`
                                     : undefined
                             }
                             className="w-13 h-13"

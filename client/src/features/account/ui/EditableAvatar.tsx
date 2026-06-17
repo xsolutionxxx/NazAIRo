@@ -6,7 +6,7 @@ import { UserAvatar } from "@/shared/ui/userAvatar";
 import { useAppDispatch, useAppSelector } from "@/shared/lib/hooks/redux";
 import { uploadAvatar } from "@features/auth/model/authActions";
 
-const SERVER_URL = "http://localhost:5000";
+const SERVER_URL = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") ?? "http://localhost:5000";
 
 export default function EditableAvatar() {
   const fileInputRef = useRef<HTMLInputElement>(null);
