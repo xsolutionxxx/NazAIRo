@@ -23,5 +23,10 @@ export const adminApi = {
     $api.get("/admin/bookings", { params }),
 
   // Users
-  getUsers: () => $api.get("/users"),
+  getUsers: (params?: { page?: number; limit?: number; search?: string; role?: string }) =>
+    $api.get("/users", { params }),
+  blockUser: (id: string, block: boolean) =>
+    $api.patch(`/admin/users/${id}/block`, { block }),
+  setUserRole: (id: string, role: string) =>
+    $api.patch(`/admin/users/${id}/role`, { role }),
 };

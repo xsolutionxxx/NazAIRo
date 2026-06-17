@@ -39,7 +39,7 @@ export default function Header({
     >
       <Image
         src="/logo_light.svg"
-        alt="Logotype NazAIRo"
+        alt="Logotype Golobe"
         width={110}
         height={40}
         className="w-full h-10 md:h-9 lg:h-10"

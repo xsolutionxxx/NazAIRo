@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import { AirlineLogo } from "@/shared/ui/airlineLogo";
+import BoardingPassCard from "./BoardingPassCard";
+import HotelVoucherCard from "./HotelVoucherCard";
 import {
   Plane, Hotel, ArrowRight, CalendarDays, Users,
-  Clock, CheckCircle, XCircle, ChevronDown, Ban, Download,
+  Clock, CheckCircle, XCircle, ChevronDown, Ban, CreditCard,
 } from "lucide-react";
 import { bookingApi } from "@features/flights/api/bookingApi";
 import { AppButton } from "@shared/ui/appButton";
@@ -29,34 +31,16 @@ function fmtTime(iso: string) {
 }
 
 export default function BookingCard({ booking, onCancelled }: Props) {
-  const [expanded,    setExpanded]    = useState(false);
-  const [cancelling,  setCancelling]  = useState(false);
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [downloading, setDownloading] = useState(false);
+  if (booking.status === "PENDING") return null; // filtered server-side, but defensive
+  const [expanded,      setExpanded]     = useState(false);
+  const [cancelling,    setCancelling]   = useState(false);
+  const [confirmOpen,   setConfirmOpen]  = useState(false);
 
   const status = STATUS_CONFIG[booking.status] ?? STATUS_CONFIG.PENDING;
   const StatusIcon = status.icon;
-  const isFlight = booking.type === "FLIGHT";
-  const canCancel = booking.status === "CONFIRMED" || booking.status === "PENDING";
-
-  const handleDownload = async () => {
-    setDownloading(true);
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api"}/bookings/${booking.id}/ticket`,
-        { credentials: "include" },
-      );
-      if (!res.ok) throw new Error("Failed");
-      const blob = await res.blob();
-      const url  = URL.createObjectURL(blob);
-      const a    = document.createElement("a");
-      const cd   = res.headers.get("Content-Disposition") ?? "";
-      const name = cd.match(/filename="(.+)"/)?.[1] ?? `booking-${booking.id.slice(0,8)}.pdf`;
-      a.href = url; a.download = name; a.click();
-      URL.revokeObjectURL(url);
-    } catch { /* silent */ }
-    setDownloading(false);
-  };
+  const isFlight   = booking.type === "FLIGHT";
+  const isPending  = booking.status === "PENDING";
+  const canCancel  = booking.status === "CONFIRMED" || booking.status === "PENDING";
 
   const handleCancel = async () => {
     setCancelling(true);
@@ -69,87 +53,87 @@ export default function BookingCard({ booking, onCancelled }: Props) {
     setConfirmOpen(false);
   };
 
+
   return (
     <div className="bg-surface rounded-2xl border border-[#D7E2EE] overflow-hidden">
       {/* Main row */}
-      <div className="p-5">
-        <div className="flex items-start gap-4">
-          {/* Type icon */}
+      <div className="p-4 sm:p-5">
+        {/* Row 1: icon + title */}
+        <div className="flex items-start gap-3">
           <div className={cn(
-            "w-12 h-12 rounded-xl flex items-center justify-center shrink-0",
-            isFlight ? "bg-blue-50 dark:bg-blue-950" : "bg-amber-50 dark:bg-amber-950",
+            "w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0",
+            isFlight ? "bg-blue-50" : "bg-amber-50",
           )}>
             {isFlight
-              ? <Plane  size={22} className="text-blue-500"  strokeWidth={1.5} />
-              : <Hotel  size={22} className="text-amber-500" strokeWidth={1.5} />}
+              ? <Plane size={18} className="text-blue-500"  strokeWidth={1.5} />
+              : <Hotel size={18} className="text-amber-500" strokeWidth={1.5} />}
           </div>
 
-          {/* Main info */}
           <div className="flex-1 min-w-0">
             {isFlight
               ? <FlightSummary booking={booking} />
               : <HotelSummary  booking={booking} />}
-
-            {/* Meta row */}
-            <div className="flex flex-wrap items-center gap-3 mt-2">
-              <span className={cn("inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full", status.color)}>
-                <StatusIcon size={12} strokeWidth={2} />
-                {status.label}
-              </span>
-              <span className="text-xs text-foreground-muted">
-                Booked {fmt(booking.createdAt)}
-              </span>
-              {booking.payment?.status === "PAID" && (
-                <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-green-50 text-green-700">
-                  ✓ Paid
-                </span>
-              )}
-              {booking.payment?.status === "REFUNDED" && (
-                <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-blue-50 text-blue-700">
-                  ↩ Refunded
-                </span>
-              )}
-            </div>
           </div>
 
-          {/* Price + actions */}
-          <div className="flex flex-col items-end gap-3 shrink-0 ml-2">
-            <div className="text-right">
-              <p className="text-xl font-bold">${Number(booking.totalPrice).toFixed(2)}</p>
-              <p className="text-xs text-foreground-muted">total</p>
-            </div>
-            <div className="flex items-center gap-2">
-              {booking.status === "CONFIRMED" && (
-                <button
-                  onClick={handleDownload}
-                  disabled={downloading}
-                  className="flex items-center gap-1 text-xs text-primary font-medium hover:underline disabled:opacity-50 px-2 py-1"
-                >
-                  <Download size={13} strokeWidth={1.5} />
-                  {downloading ? "…" : "Ticket"}
-                </button>
-              )}
-              {canCancel && !confirmOpen && (
-                <button
-                  onClick={() => setConfirmOpen(true)}
-                  className="flex items-center gap-1 text-xs text-foreground-muted hover:text-destructive transition-colors px-2 py-1"
-                >
-                  <Ban size={13} strokeWidth={1.5} />
-                  Cancel
-                </button>
-              )}
-              <button
-                onClick={() => setExpanded((p) => !p)}
-                className="flex items-center gap-1 text-xs text-primary font-medium hover:underline"
-              >
-                Details
-                <ChevronDown size={13} className={cn("transition-transform", expanded && "rotate-180")} />
-              </button>
-            </div>
+          {/* Price — hidden on mobile, shown on sm+ */}
+          <div className="hidden sm:block text-right shrink-0 ml-2">
+            <p className="text-xl font-bold">${Number(booking.totalPrice).toFixed(2)}</p>
+            <p className="text-xs text-foreground-muted">total</p>
           </div>
         </div>
 
-        {/* Cancel confirm */}
+        {/* Row 2: meta + actions */}
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 mt-3 pl-[52px] sm:pl-[60px]">
+          {/* Status badges */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className={cn("inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full", status.color)}>
+              <StatusIcon size={12} strokeWidth={2} />
+              {status.label}
+            </span>
+            <span className="text-xs text-foreground-muted">
+              Booked {fmt(booking.createdAt)}
+            </span>
+            {booking.payment?.status === "PAID" && (
+              <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-green-50 text-green-700">✓ Paid</span>
+            )}
+            {booking.payment?.status === "REFUNDED" && (
+              <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-blue-50 text-blue-700">↩ Refunded</span>
+            )}
+            {/* Price — mobile only, inline with badges */}
+            <span className="sm:hidden font-bold text-sm">${Number(booking.totalPrice).toFixed(2)}</span>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-1 shrink-0">
+            {isPending && (
+              <a
+                href={`/bookings/resume/${booking.id}`}
+                className="flex items-center gap-1 text-xs text-amber-600 font-medium hover:underline px-2 py-1"
+              >
+                <CreditCard size={13} strokeWidth={1.5} />
+                Complete
+              </a>
+            )}
+            {canCancel && !confirmOpen && !isPending && (
+              <button
+                onClick={() => setConfirmOpen(true)}
+                className="flex items-center gap-1 text-xs text-foreground-muted hover:text-destructive transition-colors px-2 py-1"
+              >
+                <Ban size={13} strokeWidth={1.5} />
+                Cancel
+              </button>
+            )}
+            <button
+              onClick={() => setExpanded((p) => !p)}
+              className="flex items-center gap-1 text-xs text-primary font-medium hover:underline px-2 py-1"
+            >
+              Details
+              <ChevronDown size={13} className={cn("transition-transform", expanded && "rotate-180")} />
+            </button>
+          </div>
+        </div>
+
+        {/* Cancel confirm (confirmed bookings) */}
         {confirmOpen && (
           <div className="mt-4 p-4 bg-destructive/5 border border-destructive/20 rounded-xl flex items-center justify-between gap-4">
             <p className="text-sm font-medium">
@@ -174,21 +158,30 @@ export default function BookingCard({ booking, onCancelled }: Props) {
             </div>
           </div>
         )}
+
       </div>
 
       {/* Expanded details */}
       {expanded && (
         <div className="border-t border-[#D7E2EE] bg-background px-5 py-4">
-          {isFlight
-            ? <FlightDetails booking={booking} />
-            : <HotelDetails  booking={booking} />}
+          {isFlight && booking.status === "CONFIRMED" ? (
+            <BoardingPassCard booking={booking} showDownload />
+          ) : !isFlight && booking.status === "CONFIRMED" ? (
+            <HotelVoucherCard booking={booking} showDownload />
+          ) : isFlight ? (
+            <FlightDetails booking={booking} />
+          ) : (
+            <HotelDetails booking={booking} />
+          )}
 
-          <div className="mt-3 pt-3 border-t border-[#D7E2EE] flex items-center justify-between text-xs text-foreground-muted">
-            <span className="font-mono">ID: {booking.id}</span>
-            {booking.stripePaymentIntentId && (
-              <span className="font-mono">Stripe: {booking.stripePaymentIntentId.slice(0, 20)}…</span>
-            )}
-          </div>
+          {!(booking.status === "CONFIRMED") && (
+            <div className="mt-3 pt-3 border-t border-[#D7E2EE] flex items-center justify-between text-xs text-foreground-muted">
+              <span className="font-mono">ID: {booking.id}</span>
+              {booking.stripePaymentIntentId && (
+                <span className="font-mono">Stripe: {booking.stripePaymentIntentId.slice(0, 20)}…</span>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -204,11 +197,7 @@ function FlightSummary({ booking }: { booking: any }) {
   return (
     <div>
       <div className="flex items-center gap-2 mb-1">
-        {flight.airline.logoUrl && (
-          <div className="relative h-5 w-10">
-            <Image src={flight.airline.logoUrl} alt={flight.airline.name} fill className="object-contain" unoptimized />
-          </div>
-        )}
+        <AirlineLogo iata={flight.airline.iata} name={flight.airline.name} className="h-5 w-10" />
         <span className="font-bold text-base">
           {flight.departureAirport.city}
           <span className="mx-1.5 text-foreground-muted">→</span>
@@ -220,6 +209,9 @@ function FlightSummary({ booking }: { booking: any }) {
         {fmt(flight.departureTime)} · {fmtTime(flight.departureTime)} → {fmtTime(flight.arrivalTime)}
         &nbsp;·&nbsp;{fb.seatCount} passenger{fb.seatCount !== 1 ? "s" : ""}
         &nbsp;·&nbsp;{fb.cabinClass}
+        {fb.passengers?.some((p: any) => p.seatNumber) && (
+          <span className="ml-1 text-primary">· {fb.passengers.map((p: any) => p.seatNumber).filter(Boolean).join(", ")}</span>
+        )}
       </p>
     </div>
   );
@@ -278,7 +270,9 @@ function FlightDetails({ booking }: { booking: any }) {
           <div className="grid grid-cols-2 gap-2">
             {fb.passengers.map((p: any, i: number) => (
               <div key={p.id} className="bg-surface rounded-lg px-3 py-2 text-sm">
-                <p className="font-medium">{i + 1}. {p.firstName} {p.lastName}</p>
+                <p className="font-medium">{i + 1}. {p.firstName} {p.lastName}
+                  {p.seatNumber && <span className="ml-1.5 text-xs text-primary font-semibold">· {p.seatNumber}</span>}
+                </p>
                 <p className="text-xs text-foreground-muted">{p.passportNumber} · {p.nationality}</p>
               </div>
             ))}
@@ -343,7 +337,11 @@ function HotelDetails({ booking }: { booking: any }) {
             {hb.guests.map((g: any, i: number) => (
               <div key={g.id} className="bg-surface rounded-lg px-3 py-2 text-sm">
                 <p className="font-medium">{i + 1}. {g.firstName} {g.lastName}</p>
-                <p className="text-xs text-foreground-muted">{g.passportNumber} · {g.nationality}</p>
+                {(g.passportNumber || g.nationality) && (
+                  <p className="text-xs text-foreground-muted">
+                    {[g.nationality, g.passportNumber].filter(Boolean).join(" · ")}
+                  </p>
+                )}
               </div>
             ))}
           </div>

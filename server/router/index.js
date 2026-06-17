@@ -21,6 +21,7 @@ import { hotelSearchSchema, initiateHotelBookingSchema } from "../shared/schemas
 import { initiateFlightBookingSchema } from "../shared/schemas/booking-schema.js";
 import authMiddleware from "../middlewares/auth-middleware.js";
 import adminMiddleware from "../middlewares/admin-middleware.js";
+import { uploadAvatar, uploadCover } from "../shared/lib/upload.js";
 
 const router = new Router();
 
@@ -61,6 +62,9 @@ router.patch(
   userController.updateProfile,
 );
 
+router.post("/upload-avatar",     authMiddleware, uploadAvatar,  userController.uploadAvatar);
+router.post("/upload-cover",      authMiddleware, uploadCover,   userController.uploadCover);
+
 router.get(
   "/users",
   authMiddleware,
@@ -68,11 +72,26 @@ router.get(
   userController.getUsers,
 );
 
+router.patch(
+  "/admin/users/:id/block",
+  authMiddleware,
+  adminMiddleware,
+  userController.blockUser,
+);
+
+router.patch(
+  "/admin/users/:id/role",
+  authMiddleware,
+  adminMiddleware,
+  userController.setRole,
+);
+
 // ─── Flights (public) ────────────────────────────────────────────────────────
-router.get("/flights/search",   validateQuery(flightSearchSchema), flightController.search);
-router.get("/flights/airports", flightController.getAirports);
-router.get("/flights/airlines", flightController.getAirlines);
-router.get("/flights/:id",      flightController.getById);
+router.get("/flights/search",      validateQuery(flightSearchSchema), flightController.search);
+router.get("/flights/airports",    flightController.getAirports);
+router.get("/flights/airlines",    flightController.getAirlines);
+router.get("/flights/:id/seats",   flightController.getBookedSeats);
+router.get("/flights/:id",         flightController.getById);
 
 // ─── Hotels (public) ──────────────────────────────────────────────────────────
 router.get("/hotels/search", validateQuery(hotelSearchSchema), hotelController.search);
@@ -92,7 +111,10 @@ router.delete( "/admin/hotels/:id", authMiddleware, adminMiddleware, hotelContro
 // ─── Bookings ─────────────────────────────────────────────────────────────────
 router.post(   "/bookings/flight",  authMiddleware, validate(initiateFlightBookingSchema), bookingController.initiateFlightBooking);
 router.post(   "/bookings/hotel",   authMiddleware, validate(initiateHotelBookingSchema),  bookingController.initiateHotelBooking);
-router.post(   "/bookings/:id/confirm", authMiddleware, bookingController.confirmBooking);
+router.post(   "/bookings/:id/confirm",    authMiddleware, bookingController.confirmBooking);
+router.delete( "/bookings/:id/abandon",   authMiddleware, bookingController.abandonBooking);
+router.post(   "/bookings/:id/paysaved", authMiddleware, bookingController.paySavedMethod);
+router.get(    "/bookings/:id/resume",  authMiddleware, bookingController.resumeBooking);
 router.get(    "/bookings",           authMiddleware, bookingController.getUserBookings);
 router.get(    "/bookings/:id",       authMiddleware, bookingController.getBookingById);
 router.patch(  "/bookings/:id/cancel", authMiddleware, bookingController.cancelBooking);

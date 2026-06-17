@@ -6,12 +6,10 @@ import SearchPageTemplate from "@shared/ui/SearchPageTemplate";
 
 export default function Stays() {
   return (
-    <Suspense>
-      <SearchPageTemplate
-        searchForm={<HotelSearchForm />}
-        filters={<HotelFilters />}
-        result={<HotelList />}
-      />
-    </Suspense>
+    <SearchPageTemplate
+      searchForm={<Suspense><HotelSearchForm /></Suspense>}
+      filters={<Suspense><HotelFilters /></Suspense>}
+      result={<Suspense><HotelList /></Suspense>}
+    />
   );
 }

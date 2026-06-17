@@ -1,5 +1,21 @@
 @import "tailwindcss";
 
+@keyframes hero-form-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+.hero-form-animate {
+  animation: hero-form-in 0.22s ease-out both;
+}
+
+/* Scroll-reveal helpers — toggled by IntersectionObserver */
+.sr { opacity: 0; transform: translateY(32px); transition: opacity 0.65s ease, transform 0.65s ease; }
+.sr.sr-visible { opacity: 1; transform: translateY(0); }
+.sr-left { opacity: 0; transform: translateX(-32px); transition: opacity 0.65s ease, transform 0.65s ease; }
+.sr-left.sr-visible { opacity: 1; transform: translateX(0); }
+.sr-scale { opacity: 0; transform: scale(0.92); transition: opacity 0.6s ease, transform 0.6s ease; }
+.sr-scale.sr-visible { opacity: 1; transform: scale(1); }
+
 @theme {
   --font-sans: var(--font-montserrat), ui-sans-serif, system-ui;
   --font-heading: var(--font-trade-gothic), sans-serif;
@@ -93,4 +109,14 @@
   @variant 2xl {
     max-width: 1440px;
   }
+}
+button, [role="button"], a, select, label[for] {
+  cursor: pointer;
+}
+
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }

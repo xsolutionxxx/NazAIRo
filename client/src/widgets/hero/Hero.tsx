@@ -4,7 +4,7 @@ import { useRef } from "react";
 
 import ParallaxScreen from "@/widgets/parallax-screen/ParallaxScreen";
 import Header from "@/widgets/header/Header";
-/* import SearchWidget from "@/widgets/search-widget/SearchWidget"; */
+import HeroSearch from "./HeroSearch";
 
 export default function Hero() {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -16,7 +16,7 @@ export default function Hero() {
     >
       <ParallaxScreen containerRef={sectionRef} />
       <Header variant="hero" className="z-9999" />
-      {/* <SearchWidget className="absolut z-9998" /> */}
+      <HeroSearch />
     </section>
   );
 }

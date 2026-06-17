@@ -7,5 +7,7 @@ export interface IUser {
   address?: string;
   dateOfBirth?: string;
   avatarUrl?: string;
+  backgroundUrl?: string;
+  role?: "CLIENT" | "ADMIN";
   isActivated: boolean;
 }

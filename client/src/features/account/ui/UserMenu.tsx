@@ -2,21 +2,22 @@ import { useState } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
-  ChevronDown,
-  User,
-  History,
-  CreditCard,
-  LifeBuoy,
-  LogOut,
-  ChevronRight,
+    ChevronDown,
+    User,
+    History,
+    CreditCard,
+    LifeBuoy,
+    LogOut,
+    ChevronRight,
+    LayoutDashboard,
 } from "lucide-react";
 
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu";
 import { AppButton } from "@/shared/ui/appButton";
 import { UserAvatar } from "@/shared/ui/userAvatar";
@@ -27,111 +28,159 @@ import { useAppDispatch, useAppSelector } from "@/shared/lib/hooks/redux";
 import { logout } from "@/features/auth/model/authActions";
 
 interface UserMenuProps {
-  className?: string;
+    className?: string;
 }
 
 export default function UserMenu({ className }: UserMenuProps) {
-  const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(false);
 
-  const dispatch = useAppDispatch();
-  const { user } = useAppSelector((state) => state.authReducer);
+    const dispatch = useAppDispatch();
+    const { user } = useAppSelector((state) => state.authReducer);
 
-  const handleLogout = async () => {
-    const resultAction = await dispatch(logout());
+    const handleLogout = async () => {
+        const resultAction = await dispatch(logout());
 
-    if (logout.fulfilled.match(resultAction)) {
-      redirect("/");
-    }
-  };
+        if (logout.fulfilled.match(resultAction)) {
+            redirect("/");
+        }
+    };
 
-  return (
-    <div className="relative hidden md:block w-full">
-      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-        <DropdownMenuTrigger
-          className="absolute inset-0 z-30"
-          onMouseEnter={() => setIsOpen(true)}
-        />
+    return (
+        <div className="relative hidden md:block w-full">
+            <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+                <DropdownMenuTrigger
+                    className="absolute inset-0 z-30"
+                    onMouseEnter={() => setIsOpen(true)}
+                />
 
-        <Link
-          href="/account"
-          className={cn(
-            "relative z-20 flex items-center gap-3 pointer-events-none",
-            className,
-          )}
-        >
-          <div className="relative pointer-events-auto">
-            <UserAvatar src="/profile-placeholder.png" className="w-10 h-10" />
-            <div className="absolute bottom-px -right-px p-px rounded-full bg-accent">
-              <ChevronDown strokeWidth={1.5} size={12} color="#112211" />
-            </div>
-          </div>
-          <span className="font-semibold pointer-events-auto">
-            {user?.firstName} {user?.lastName?.[0]}.
-          </span>
-        </Link>
+                <Link
+                    href="/account"
+                    className={cn(
+                        "relative z-20 flex items-center gap-3 pointer-events-none",
+                        className,
+                    )}
+                >
+                    <div className="relative pointer-events-auto">
+                        <UserAvatar
+                            src={
+                                user?.avatarUrl
+                                    ? `http://localhost:5000${user.avatarUrl}`
+                                    : undefined
+                            }
+                            className="w-10 h-10"
+                        />
+                        <div className="absolute bottom-px -right-px p-px rounded-full bg-accent">
+                            <ChevronDown
+                                strokeWidth={1.5}
+                                size={12}
+                                color="#112211"
+                            />
+                        </div>
+                    </div>
+                    <span className="font-semibold pointer-events-auto">
+                        {user?.firstName} {user?.lastName?.[0]}.
+                    </span>
+                </Link>
 
-        <DropdownMenuContent
-          className="p-7 min-w-80 flex flex-col gap-4 bg-surface border-none rounded-xl font-medium"
-          align="end"
-          onMouseLeave={() => setIsOpen(false)}
-        >
-          <div className="flex items-center gap-4">
-            <UserAvatar src="/profile-placeholder.png" className="w-13 h-13" />
-            <div className="flex flex-col gap-1">
-              <p className="text-base font-semibold">
-                {user?.firstName} {user?.lastName}
-              </p>
-              <span className="text-xs text-foreground-muted">
-                {user?.email}
-              </span>
-            </div>
-          </div>
+                <DropdownMenuContent
+                    className="p-7 min-w-80 flex flex-col gap-4 bg-surface border-none rounded-xl font-medium"
+                    align="end"
+                    onMouseLeave={() => setIsOpen(false)}
+                >
+                    <div className="flex items-center gap-4">
+                        <UserAvatar
+                            src={
+                                user?.avatarUrl
+                                    ? `http://localhost:5000${user.avatarUrl}`
+                                    : undefined
+                            }
+                            className="w-13 h-13"
+                        />
+                        <div className="flex flex-col gap-1">
+                            <p className="text-base font-semibold">
+                                {user?.firstName} {user?.lastName}
+                            </p>
+                            <span className="text-xs text-foreground-muted">
+                                {user?.email}
+                            </span>
+                        </div>
+                    </div>
 
-          <DropdownMenuSeparator className="bg-foreground opacity-25" />
+                    <DropdownMenuSeparator className="bg-foreground opacity-25" />
 
-          <div className="flex flex-col gap-2">
-            <DropdownMenuItem className="focus:bg-transparent hover:bg-transparent cursor-pointer">
-              <Link
-                href="/account"
-                className="w-full flex justify-between items-center md:hover:text-primary md:hover:scale-103 active:scale-95 transition-all"
-              >
-                <div className="flex items-center">
-                  <User strokeWidth={2.5} size={18} className="mr-2" />
-                  My Account
-                </div>
-                <ChevronRight strokeWidth={2.5} size={16} />
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem className="focus:bg-transparent hover:bg-transparent cursor-pointer">
-              <Link
-                href="/account/history"
-                className="w-full flex justify-between items-center md:hover:text-primary md:hover:scale-103 active:scale-95 transition-all"
-              >
-                <div className="flex items-center">
-                  <History strokeWidth={2.5} size={18} className="mr-2" />
-                  History
-                </div>
-                <ChevronRight strokeWidth={2.5} size={16} />
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem className="focus:bg-transparent hover:bg-transparent cursor-pointer">
-              <Link
-                href="/account/payments"
-                className="w-full flex justify-between items-center md:hover:text-primary md:hover:scale-103 active:scale-95 transition-all"
-              >
-                <div className="flex items-center">
-                  <CreditCard strokeWidth={2.5} size={18} className="mr-2" />
-                  Payments
-                </div>
-                <ChevronRight strokeWidth={2.5} size={16} />
-              </Link>
-            </DropdownMenuItem>
-          </div>
+                    <div className="flex flex-col gap-2">
+                        <DropdownMenuItem className="focus:bg-transparent hover:bg-transparent cursor-pointer">
+                            <Link
+                                href="/account"
+                                className="w-full flex justify-between items-center md:hover:text-primary md:hover:scale-103 active:scale-95 transition-all"
+                            >
+                                <div className="flex items-center">
+                                    <User
+                                        strokeWidth={2.5}
+                                        size={18}
+                                        className="mr-2"
+                                    />
+                                    My Account
+                                </div>
+                                <ChevronRight strokeWidth={2.5} size={16} />
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="focus:bg-transparent hover:bg-transparent cursor-pointer">
+                            <Link
+                                href="/account/history"
+                                className="w-full flex justify-between items-center md:hover:text-primary md:hover:scale-103 active:scale-95 transition-all"
+                            >
+                                <div className="flex items-center">
+                                    <History
+                                        strokeWidth={2.5}
+                                        size={18}
+                                        className="mr-2"
+                                    />
+                                    History
+                                </div>
+                                <ChevronRight strokeWidth={2.5} size={16} />
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="focus:bg-transparent hover:bg-transparent cursor-pointer">
+                            <Link
+                                href="/account/payments"
+                                className="w-full flex justify-between items-center md:hover:text-primary md:hover:scale-103 active:scale-95 transition-all"
+                            >
+                                <div className="flex items-center">
+                                    <CreditCard
+                                        strokeWidth={2.5}
+                                        size={18}
+                                        className="mr-2"
+                                    />
+                                    Payments
+                                </div>
+                                <ChevronRight strokeWidth={2.5} size={16} />
+                            </Link>
+                        </DropdownMenuItem>
+                    </div>
 
-          <DropdownMenuSeparator className="bg-foreground opacity-25" />
+                    <DropdownMenuSeparator className="bg-foreground opacity-25" />
 
-          <div className="flex flex-col gap-2">
-            <DropdownMenuItem className="focus:bg-transparent hover:bg-transparent cursor-pointer">
+                    <div className="flex flex-col gap-2">
+                        {user?.role === "ADMIN" && (
+                            <DropdownMenuItem className="focus:bg-transparent hover:bg-transparent cursor-pointer">
+                                <Link
+                                    href="/admin"
+                                    className="w-full flex justify-between items-center md:hover:text-primary md:hover:scale-103 active:scale-95 transition-all"
+                                >
+                                    <div className="flex items-center">
+                                        <LayoutDashboard
+                                            strokeWidth={2.5}
+                                            size={18}
+                                            className="mr-2"
+                                        />
+                                        Admin Dashboard
+                                    </div>
+                                    <ChevronRight strokeWidth={2.5} size={16} />
+                                </Link>
+                            </DropdownMenuItem>
+                        )}
+                        {/* <DropdownMenuItem className="focus:bg-transparent hover:bg-transparent cursor-pointer">
               <Link
                 href="/support"
                 className="w-full flex justify-between items-center md:hover:text-primary md:hover:scale-103 active:scale-95 transition-all"
@@ -142,20 +191,20 @@ export default function UserMenu({ className }: UserMenuProps) {
                 </div>
                 <ChevronRight strokeWidth={2.5} size={16} />
               </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem className="focus:bg-transparent hover:bg-transparent cursor-pointer">
-              <AppButton
-                intent="ghost"
-                className="p-0 font-medium md:hover:text-accent"
-                onClick={() => handleLogout()}
-              >
-                <LogOut strokeWidth={2.5} size={18} />
-                Logout
-              </AppButton>
-            </DropdownMenuItem>
-          </div>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
-  );
+            </DropdownMenuItem> */}
+                        <DropdownMenuItem className="focus:bg-transparent hover:bg-transparent cursor-pointer">
+                            <AppButton
+                                intent="ghost"
+                                className="p-0 font-medium md:hover:text-accent"
+                                onClick={() => handleLogout()}
+                            >
+                                <LogOut strokeWidth={2.5} size={18} />
+                                Logout
+                            </AppButton>
+                        </DropdownMenuItem>
+                    </div>
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </div>
+    );
 }

@@ -182,3 +182,35 @@ export const updateProfile = createAsyncThunk<
     return rejectWithValue("Unknown Error");
   }
 });
+
+export const uploadAvatar = createAsyncThunk<
+  AccountResponse,
+  File,
+  { rejectValue: string }
+>("auth/upload-avatar", async (file, { rejectWithValue }) => {
+  try {
+    const response = await AccountService.uploadAvatar(file);
+    return response.data;
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      return rejectWithValue(err.response?.data?.message || "Failed to upload avatar");
+    }
+    return rejectWithValue("Unknown Error");
+  }
+});
+
+export const uploadCover = createAsyncThunk<
+  AccountResponse,
+  File,
+  { rejectValue: string }
+>("auth/upload-cover", async (file, { rejectWithValue }) => {
+  try {
+    const response = await AccountService.uploadCover(file);
+    return response.data;
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      return rejectWithValue(err.response?.data?.message || "Failed to upload cover");
+    }
+    return rejectWithValue("Unknown Error");
+  }
+});

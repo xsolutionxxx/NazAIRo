@@ -1,5 +1,6 @@
-import Image from "next/image";
-import { Avatar, AvatarFallback, AvatarImage } from "@shared/ui/avatar";
+"use client";
+
+import { useState, useEffect } from "react";
 import { cn } from "@shared/lib/utils";
 
 interface AppAvatarProps {
@@ -9,17 +10,40 @@ interface AppAvatarProps {
 }
 
 export function UserAvatar({ src, alt, className }: AppAvatarProps) {
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    setError(false);
+  }, [src]);
+
+  const showPlaceholder = !src || error;
+
   return (
-    <Avatar className={cn(className)}>
-      <AvatarImage src={src || undefined} alt={alt} className="object-cover" />
-      <AvatarFallback>
-        <Image
+    <span
+      className={cn(
+        "relative flex shrink-0 overflow-hidden rounded-full",
+        className,
+      )}
+    >
+      {showPlaceholder ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
           src="/profile-placeholder.png"
-          alt="user placeholder"
-          fill
-          className="object-cover"
+          alt={alt ?? "user"}
+          className="w-full h-full object-cover"
         />
-      </AvatarFallback>
-    </Avatar>
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          key={src}
+          src={src}
+          alt={alt ?? "user"}
+          crossOrigin="anonymous"
+          className="w-full h-full object-cover"
+          onError={() => setError(true)}
+          onLoad={() => setError(false)}
+        />
+      )}
+    </span>
   );
 }

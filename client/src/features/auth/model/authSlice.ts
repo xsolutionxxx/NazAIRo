@@ -5,6 +5,8 @@ import {
   changeEmail,
   changePassword,
   updateProfile,
+  uploadAvatar,
+  uploadCover,
 } from "../model/authActions";
 
 interface AuthState {
@@ -69,6 +71,12 @@ const authSlice = createSlice({
         state.authLoadingStatus = "idle";
       })
       .addCase(updateProfile.fulfilled, (state, action) => {
+        state.user = action.payload;
+      })
+      .addCase(uploadAvatar.fulfilled, (state, action) => {
+        state.user = action.payload;
+      })
+      .addCase(uploadCover.fulfilled, (state, action) => {
         state.user = action.payload;
       })
       .addMatcher(

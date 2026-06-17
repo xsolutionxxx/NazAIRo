@@ -1,6 +1,5 @@
 import axios from "axios";
 import { AuthResponse } from "@/features/auth/api/authResponse";
-import store from "@app/store/store";
 import { setAuth } from "@/features/auth/model/authSlice";
 
 export const API_URL = "http://localhost:5000/api";
@@ -62,6 +61,8 @@ $api.interceptors.response.use(
       } catch (err) {
         processQueue(err);
         localStorage.removeItem("was_logged_in");
+        // Lazy import to break circular dependency (store → flightSlice → $api → store)
+        const { default: store } = await import("@app/store/store");
         store.dispatch(setAuth({ isAuth: false, user: null }));
         window.location.href = "/login";
         return Promise.reject(err);

@@ -34,37 +34,43 @@ export default function AdminPage() {
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Dashboard</h1>
         <p className="text-foreground-muted text-sm mt-1">Overview of your platform</p>
       </div>
 
-      {/* Stat cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        {cards.map(({ label, value, icon: Icon, color, bg }) => (
-          <div key={label} className="bg-surface rounded-2xl border border-[#D7E2EE] p-5">
-            <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center mb-3", bg)}>
-              <Icon size={20} className={color} strokeWidth={1.5} />
+      {/* Stat cards — 2 cols mobile, last card full-width if odd */}
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+        {cards.map(({ label, value, icon: Icon, color, bg }, i) => (
+          <div
+            key={label}
+            className={cn(
+              "bg-surface rounded-2xl border border-[#D7E2EE] p-4 overflow-hidden",
+              i === cards.length - 1 && cards.length % 2 !== 0 && "col-span-2 lg:col-span-1",
+            )}
+          >
+            <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center mb-3 shrink-0", bg)}>
+              <Icon size={18} className={color} strokeWidth={1.5} />
             </div>
-            <p className="text-2xl font-bold">{value}</p>
-            <p className="text-xs text-foreground-muted mt-0.5">{label}</p>
+            <p className="text-2xl font-bold truncate">{value}</p>
+            <p className="text-xs text-foreground-muted mt-0.5 truncate">{label}</p>
           </div>
         ))}
       </div>
 
       {/* Booking status */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-3">
         {[
-          { label: "Confirmed", value: stats.bookings.confirmed, icon: CheckCircle, color: "text-green-500" },
-          { label: "Pending",   value: stats.bookings.pending,   icon: Clock,       color: "text-amber-500" },
-          { label: "Cancelled", value: stats.bookings.cancelled, icon: XCircle,     color: "text-destructive" },
+          { label: "Confirmed", value: stats.bookings.confirmed, icon: CheckCircle, color: "text-green-500",   bg: "bg-green-50" },
+          { label: "Pending",   value: stats.bookings.pending,   icon: Clock,       color: "text-amber-500",   bg: "bg-amber-50" },
+          { label: "Cancelled", value: stats.bookings.cancelled, icon: XCircle,     color: "text-destructive", bg: "bg-red-50"   },
         ].map(({ label, value, icon: Icon, color }) => (
-          <div key={label} className="bg-surface rounded-2xl border border-[#D7E2EE] p-5 flex items-center gap-4">
-            <Icon size={28} className={color} strokeWidth={1.5} />
+          <div key={label} className="bg-surface rounded-2xl border border-[#D7E2EE] p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:gap-4">
+            <Icon size={20} className={cn(color, "shrink-0 mb-1 sm:mb-0 sm:w-7 sm:h-7")} strokeWidth={1.5} />
             <div>
-              <p className="text-xl font-bold">{value}</p>
-              <p className="text-sm text-foreground-muted">{label}</p>
+              <p className="text-lg sm:text-xl font-bold leading-tight">{value}</p>
+              <p className="text-[11px] sm:text-sm text-foreground-muted leading-tight">{label}</p>
             </div>
           </div>
         ))}
@@ -110,7 +116,7 @@ export default function AdminPage() {
 
 function TypeBadge({ type }: { type: string }) {
   return (
-    <span className={cn("text-xs font-medium px-2.5 py-1 rounded-full", type === "FLIGHT" ? "bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300" : "bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300")}>
+    <span className={cn("inline-flex items-center gap-1 whitespace-nowrap text-xs font-medium px-2.5 py-1 rounded-full", type === "FLIGHT" ? "bg-blue-50 text-blue-700" : "bg-amber-50 text-amber-700")}>
       {type === "FLIGHT" ? "✈ Flight" : "🏨 Hotel"}
     </span>
   );

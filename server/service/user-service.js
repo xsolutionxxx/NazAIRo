@@ -66,6 +66,7 @@ class UserService {
         firstName: preUser.firstName,
         lastName: preUser.lastName,
         phone: preUser.phone,
+        isActivated: true,
       },
     });
 
@@ -87,6 +88,12 @@ class UserService {
     const user = await prisma.user.findUnique({ where: { email } });
 
     if (!user) {
+      const preUser = await prisma.preUser.findFirst({ where: { email } });
+      if (preUser) {
+        throw ApiError.BadRequest(
+          "Please verify your email address first. Check your inbox for the activation link.",
+        );
+      }
       throw ApiError.BadRequest("User not found");
     }
 
@@ -245,15 +252,60 @@ class UserService {
     return new UserDto(updatedUser);
   }
 
-  async getUsers() {
-    return prisma.user.findMany({
-      select: {
-        id: true, email: true, firstName: true, lastName: true,
-        phone: true, role: true, isActivated: true,
-        avatarUrl: true, createdAt: true,
-      },
-      orderBy: { createdAt: "desc" },
+  async getUsers({ search, role, page = 1, limit = 20 } = {}) {
+    const where = {};
+    if (role) where.role = role;
+    if (search) {
+      where.OR = [
+        { email: { contains: search, mode: "insensitive" } },
+        { firstName: { contains: search, mode: "insensitive" } },
+        { lastName: { contains: search, mode: "insensitive" } },
+      ];
+    }
+    const skip = (Number(page) - 1) * Number(limit);
+    const [users, total] = await Promise.all([
+      prisma.user.findMany({
+        where,
+        select: {
+          id: true, email: true, firstName: true, lastName: true,
+          phone: true, role: true, isActivated: true, isBlocked: true,
+          avatarUrl: true, createdAt: true,
+        },
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: Number(limit),
+      }),
+      prisma.user.count({ where }),
+    ]);
+    return { users, total, page: Number(page), totalPages: Math.ceil(total / Number(limit)) };
+  }
+
+  async blockUser(targetId, block) {
+    const user = await prisma.user.findUnique({ where: { id: targetId } });
+    if (!user) throw ApiError.NotFound("User not found");
+
+    await prisma.$transaction([
+      prisma.user.update({ where: { id: targetId }, data: { isBlocked: block } }),
+      // Invalidate all refresh tokens so the blocked user can't renew session
+      ...(block ? [prisma.refreshToken.deleteMany({ where: { userId: targetId } })] : []),
+    ]);
+
+    return { id: targetId, isBlocked: block };
+  }
+
+  async setRole(targetId, role) {
+    const allowed = ["CLIENT", "ADMIN"];
+    if (!allowed.includes(role)) throw ApiError.BadRequest("Invalid role");
+
+    const user = await prisma.user.findUnique({ where: { id: targetId } });
+    if (!user) throw ApiError.NotFound("User not found");
+
+    const updated = await prisma.user.update({
+      where: { id: targetId },
+      data: { role },
+      select: { id: true, email: true, role: true },
     });
+    return updated;
   }
 }
 

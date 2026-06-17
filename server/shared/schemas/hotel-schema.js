@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const hotelSearchSchema = z.object({
-  city:      z.string().min(1),
+  city:      z.string().min(1).optional(),
   checkIn:   z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   checkOut:  z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   guests:    z.coerce.number().min(1).max(20).optional(),
@@ -20,10 +20,7 @@ export const initiateHotelBookingSchema = z.object({
   checkOut:  z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   guestCount: z.number().min(1).max(20),
   guests: z.array(z.object({
-    firstName:      z.string().min(1),
-    lastName:       z.string().min(1),
-    dateOfBirth:    z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-    passportNumber: z.string().min(5),
-    nationality:    z.string().min(2),
+    firstName: z.string().min(1),
+    lastName:  z.string().min(1),
   })).min(1),
 });

@@ -32,4 +32,10 @@ export const bookingApi = {
 
   cancelBooking: (id: string) =>
     $api.patch(`/bookings/${id}/cancel`),
+
+  resumeBooking: (id: string) =>
+    $api.get<{ clientSecret: string; booking: any }>(`/bookings/${id}/resume`),
+
+  abandonBooking: (id: string) =>
+    $api.delete(`/bookings/${id}/abandon`),
 };

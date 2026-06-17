@@ -6,6 +6,7 @@ export interface IHotel {
   country: string;
   address: string;
   rating: number;
+  reviewCount?: number;
   stars: number;
   imageUrls: string[];
   amenities: string[];
@@ -44,6 +45,7 @@ export interface IHotelSearchParams {
   stars?: number;
   minPrice?: number;
   maxPrice?: number;
+  amenities?: string[];
   sortBy?: "price" | "stars" | "rating" | "name";
   sortOrder?: "asc" | "desc";
   page?: number;
@@ -56,4 +58,13 @@ export interface IHotelSearchResult {
   page: number;
   totalPages: number;
   nights: number;
+}
+
+// Guest data for hotel booking (simpler than flight passengers)
+export interface IHotelGuest {
+  firstName: string;
+  lastName: string;
+  email?: string;
+  phone?: string;
+  specialRequests?: string;
 }

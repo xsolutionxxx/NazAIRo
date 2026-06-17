@@ -7,13 +7,11 @@ import SearchPageTemplate from "@shared/ui/SearchPageTemplate";
 
 export default function Flights() {
   return (
-    <Suspense>
-      <SearchPageTemplate
-        searchForm={<FlightSearchForm />}
-        filters={<FlightFilters />}
-        sort={<FlightsTabsList />}
-        result={<FlightList />}
-      />
-    </Suspense>
+    <SearchPageTemplate
+      searchForm={<Suspense><FlightSearchForm /></Suspense>}
+      filters={<Suspense><FlightFilters /></Suspense>}
+      sort={<Suspense><FlightsTabsList /></Suspense>}
+      result={<Suspense><FlightList /></Suspense>}
+    />
   );
 }

@@ -1,8 +1,18 @@
 import Stripe from "stripe";
 import prisma from "../shared/lib/prisma-db.js";
 import ApiError from "../exceptions/api-error.js";
+import mailService from "./mail-service.js";
+import pdfService from "./pdf-service.js";
+import logger from "../shared/lib/logger.js";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+// Lazy Stripe — key might not be in env during tests/startup
+let _stripe = null;
+const stripe = new Proxy({}, {
+  get(_, prop) {
+    if (!_stripe) _stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+    return _stripe[prop];
+  },
+});
 
 class BookingService {
   // ─── Create PaymentIntent + pending Booking ─────────────────────────────────
@@ -17,10 +27,14 @@ class BookingService {
       throw ApiError.BadRequest("Not enough seats available");
 
     const totalPrice = Number(flight.price) * passengers.length;
-    // Create Stripe PaymentIntent
+
+    const user = await prisma.user.findUnique({ where: { id: userId }, select: { stripeCustomerId: true } });
+    logger.info(`[booking] initiateFlightBooking userId=${userId} stripeCustomerId=${user?.stripeCustomerId ?? "none"}`);
+
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(totalPrice * 100), // cents
+      amount: Math.round(totalPrice * 100),
       currency: "usd",
+      ...(user?.stripeCustomerId ? { customer: user.stripeCustomerId } : {}),
       metadata: {
         userId,
         flightId,
@@ -28,8 +42,15 @@ class BookingService {
       },
     });
 
-    // Create pending booking atomically
-    const booking = await prisma.booking.create({
+    // Reserve seats + create pending booking atomically.
+    // availableSeats is decremented here so no other user can book the same seats
+    // while payment is in progress. Seats are restored if payment is abandoned/fails.
+    const [, booking] = await prisma.$transaction([
+      prisma.flight.update({
+        where: { id: flightId, availableSeats: { gte: passengers.length } },
+        data: { availableSeats: { decrement: passengers.length } },
+      }),
+      prisma.booking.create({
       data: {
         userId,
         type: "FLIGHT",
@@ -44,11 +65,14 @@ class BookingService {
             cabinClass: cabinClass ?? flight.cabinClass,
             passengers: {
               create: passengers.map((p) => ({
+                title: p.title ?? null,
                 firstName: p.firstName,
                 lastName: p.lastName,
                 dateOfBirth: new Date(p.dateOfBirth),
                 passportNumber: p.passportNumber,
+                passportExpiry: p.passportExpiry ? new Date(p.passportExpiry) : null,
                 nationality: p.nationality,
+                seatNumber: p.seatNumber ?? null,
               })),
             },
           },
@@ -57,7 +81,8 @@ class BookingService {
       include: {
         flightBooking: { include: { flight: { include: { airline: true, departureAirport: true, arrivalAirport: true } }, passengers: true } },
       },
-    });
+    }),
+    ]);
 
     return {
       bookingId: booking.id,
@@ -118,18 +143,60 @@ class BookingService {
       }),
     ];
 
-    // Decrement seats only for flight bookings
-    if (booking.type === "FLIGHT" && booking.flightBooking) {
-      ops.push(
-        prisma.flight.update({
-          where: { id: booking.flightBooking.flightId },
-          data: { availableSeats: { decrement: booking.flightBooking.seatCount } },
-        }),
-      );
-    }
+    // Seats were already reserved at initiateFlightBooking — no decrement needed here
 
     const [confirmed] = await prisma.$transaction(ops);
+
+    // Send confirmation email with PDF ticket (non-blocking)
+    this._sendConfirmationEmail(confirmed).catch((e) =>
+      logger.error("[booking] Failed to send confirmation email", { bookingId, stack: e.stack }),
+    );
+
     return confirmed;
+  }
+
+  async _sendConfirmationEmail(booking) {
+    const user = await prisma.user.findUnique({ where: { id: booking.userId }, select: { email: true } });
+    if (!user) return;
+
+    let details = "";
+    let pdfBuffer = null;
+
+    if (booking.type === "FLIGHT" && booking.flightBooking) {
+      const { flight, passengers } = booking.flightBooking;
+      const dep = flight?.departureAirport?.iata ?? "";
+      const arr = flight?.arrivalAirport?.iata ?? "";
+      const date = flight?.departureTime ? new Date(flight.departureTime).toDateString() : "";
+      details = `${dep} → ${arr} on ${date} · ${passengers?.length ?? 1} passenger(s)`;
+      try {
+        const doc = pdfService.generateFlightTicket(booking);
+        pdfBuffer = await pdfService.toBuffer(doc);
+      } catch (e) {
+        logger.warn("[booking] PDF generation failed for email", { stack: e.stack });
+      }
+    } else if (booking.type === "HOTEL" && booking.hotelBooking) {
+      const { room, checkIn, checkOut } = booking.hotelBooking;
+      const hotelName = room?.hotel?.name ?? "Hotel";
+      details = `${hotelName} · ${new Date(checkIn).toDateString()} – ${new Date(checkOut).toDateString()}`;
+      try {
+        const doc = pdfService.generateHotelVoucher(booking);
+        pdfBuffer = await pdfService.toBuffer(doc);
+      } catch (e) {
+        logger.warn("[booking] PDF generation failed for email", { stack: e.stack });
+      }
+    }
+
+    await mailService.sendBookingConfirmation(
+      user.email,
+      {
+        bookingId: booking.id,
+        type: booking.type,
+        details,
+        totalPrice: booking.totalPrice,
+        currency: booking.currency,
+      },
+      pdfBuffer,
+    );
   }
 
   // ─── Create Hotel Booking ────────────────────────────────────────────────────
@@ -157,11 +224,17 @@ class BookingService {
     });
     if (conflict) throw ApiError.BadRequest("Room is already booked for these dates");
 
-    const totalPrice = Number(room.pricePerNight) * nights;
+    const roomRate   = Number(room.pricePerNight) * nights;
+    const taxes      = Math.round(roomRate * 0.12);
+    const cleanFee   = 25;
+    const totalPrice = roomRate + taxes + cleanFee;
+
+    const user = await prisma.user.findUnique({ where: { id: userId }, select: { stripeCustomerId: true } });
 
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(totalPrice * 100),
       currency: "usd",
+      ...(user?.stripeCustomerId ? { customer: user.stripeCustomerId } : {}),
       metadata: { userId, roomId, hotelId: room.hotelId, nights: String(nights) },
     });
 
@@ -183,9 +256,9 @@ class BookingService {
               create: guests.map((g) => ({
                 firstName:      g.firstName,
                 lastName:       g.lastName,
-                dateOfBirth:    new Date(g.dateOfBirth),
-                passportNumber: g.passportNumber,
-                nationality:    g.nationality,
+                dateOfBirth:    g.dateOfBirth ? new Date(g.dateOfBirth) : null,
+                passportNumber: g.passportNumber ?? null,
+                nationality:    g.nationality   ?? null,
               })),
             },
           },
@@ -202,7 +275,7 @@ class BookingService {
   // ─── Get user bookings ───────────────────────────────────────────────────────
   async getUserBookings(userId) {
     return prisma.booking.findMany({
-      where: { userId },
+      where: { userId, status: { not: "PENDING" } },
       orderBy: { createdAt: "desc" },
       include: {
         flightBooking: {
@@ -241,6 +314,81 @@ class BookingService {
     if (booking.userId !== userId) throw ApiError.Forbidden();
 
     return booking;
+  }
+
+  // ─── Pay with saved payment method (server-side confirm) ────────────────────
+  async paySavedMethod(bookingId, userId, paymentMethodId) {
+    const booking = await prisma.booking.findUnique({ where: { id: bookingId } });
+    if (!booking) throw ApiError.NotFound("Booking not found");
+    if (booking.userId !== userId) throw ApiError.Forbidden();
+    if (booking.status !== "PENDING") throw ApiError.BadRequest("Booking is not pending");
+
+    const user = await prisma.user.findUnique({ where: { id: userId }, select: { stripeCustomerId: true } });
+    if (!user?.stripeCustomerId) throw ApiError.BadRequest("No Stripe customer found for this user");
+
+    try {
+      await stripe.paymentIntents.update(booking.stripePaymentIntentId, {
+        customer: user.stripeCustomerId,
+      });
+
+      const pi = await stripe.paymentIntents.confirm(booking.stripePaymentIntentId, {
+        payment_method: paymentMethodId,
+        return_url: process.env.CLIENT_URL + "/bookings",
+      });
+
+      if (pi.status !== "succeeded") {
+        throw ApiError.BadRequest(`Payment not completed: ${pi.status}`);
+      }
+    } catch (err) {
+      if (err instanceof ApiError) throw err;
+      logger.error("[booking] paySavedMethod stripe error", { message: err.message, code: err.code });
+      throw ApiError.BadRequest(err.message ?? "Payment failed");
+    }
+
+    return { success: true };
+  }
+
+  // ─── Resume pending booking ──────────────────────────────────────────────────
+  async resumeBooking(bookingId, userId) {
+    const booking = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      include: {
+        flightBooking: { include: { flight: { include: { airline: true, departureAirport: true, arrivalAirport: true } }, passengers: true } },
+        hotelBooking: { include: { room: { include: { hotel: true } } } },
+      },
+    });
+    if (!booking) throw ApiError.NotFound("Booking not found");
+    if (booking.userId !== userId) throw ApiError.Forbidden();
+    if (booking.status !== "PENDING") throw ApiError.BadRequest("Booking is not pending");
+
+    const pi = await stripe.paymentIntents.retrieve(booking.stripePaymentIntentId);
+    return { clientSecret: pi.client_secret, booking };
+  }
+
+  // ─── Abandon (delete) a PENDING booking ─────────────────────────────────────
+  async abandonBooking(bookingId, userId) {
+    const booking = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      include: { flightBooking: true },
+    });
+    if (!booking || booking.userId !== userId) return;
+    if (booking.status !== "PENDING") return;
+
+    // Cancel PI in Stripe (best-effort, non-blocking)
+    stripe.paymentIntents.cancel(booking.stripePaymentIntentId).catch(() => {});
+
+    // Restore reserved seats
+    const ops = [prisma.booking.delete({ where: { id: bookingId } })];
+    if (booking.flightBooking) {
+      ops.push(
+        prisma.flight.update({
+          where: { id: booking.flightBooking.flightId },
+          data: { availableSeats: { increment: booking.flightBooking.seatCount } },
+        }),
+      );
+    }
+    await prisma.$transaction(ops);
+    logger.info(`[booking] abandoned & deleted bookingId=${bookingId}, seats restored`);
   }
 
   // ─── Cancel booking ──────────────────────────────────────────────────────────

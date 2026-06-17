@@ -41,6 +41,31 @@ class BookingController {
     } catch (e) { next(e); }
   }
 
+  async abandonBooking(req, res, next) {
+    try {
+      const { id: userId } = req.user;
+      await bookingService.abandonBooking(req.params.id, userId);
+      return res.status(204).end();
+    } catch (e) { next(e); }
+  }
+
+  async paySavedMethod(req, res, next) {
+    try {
+      const { id: userId } = req.user;
+      const { paymentMethodId } = req.body;
+      const result = await bookingService.paySavedMethod(req.params.id, userId, paymentMethodId);
+      return res.json(result);
+    } catch (e) { next(e); }
+  }
+
+  async resumeBooking(req, res, next) {
+    try {
+      const { id: userId } = req.user;
+      const result = await bookingService.resumeBooking(req.params.id, userId);
+      return res.json(result);
+    } catch (e) { next(e); }
+  }
+
   async cancelBooking(req, res, next) {
     try {
       const { id: userId } = req.user;

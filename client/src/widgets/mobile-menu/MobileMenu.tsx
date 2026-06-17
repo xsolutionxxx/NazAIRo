@@ -48,7 +48,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               <nav className="relative mt-8">
                 <ul className="flex flex-col gap-6">
                   <li onClick={onClose}>
-                    <Link href="/fights">
+                    <Link href="/flights">
                       <AppButton icon={Plane} intent="ghost">
                         Find Flight
                       </AppButton>

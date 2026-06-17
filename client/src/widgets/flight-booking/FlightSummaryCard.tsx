@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { AirlineLogo } from "@/shared/ui/airlineLogo";
 import { ArrowRight, Clock, Users, Armchair } from "lucide-react";
 import type { IFlight } from "@entities/flight/types/IFlight";
 
@@ -21,24 +21,17 @@ interface Props {
   flight: IFlight;
   passengersCount: number;
   totalPrice?: number;
+  selectedSeats?: string[];
 }
 
-export default function FlightSummaryCard({ flight, passengersCount, totalPrice }: Props) {
+export default function FlightSummaryCard({ flight, passengersCount, totalPrice, selectedSeats }: Props) {
   return (
     <div className="bg-surface rounded-2xl border border-[#D7E2EE] p-6 sticky top-6 space-y-5">
       <h3 className="font-bold text-base">Booking summary</h3>
 
       {/* Airline */}
       <div className="flex items-center gap-3">
-        {flight.airline.logoUrl ? (
-          <div className="relative h-8 w-16 shrink-0">
-            <Image src={flight.airline.logoUrl} alt={flight.airline.name} fill className="object-contain" unoptimized />
-          </div>
-        ) : (
-          <div className="h-8 w-16 bg-primary-muted rounded flex items-center justify-center text-xs font-bold text-primary shrink-0">
-            {flight.airline.iata}
-          </div>
-        )}
+        <AirlineLogo iata={flight.airline.iata} name={flight.airline.name} />
         <div>
           <p className="font-semibold text-sm">{flight.airline.name}</p>
           <p className="text-xs text-foreground-muted">{flight.flightNumber}</p>
@@ -87,6 +80,12 @@ export default function FlightSummaryCard({ flight, passengersCount, totalPrice 
           </span>
           <span className="font-medium">{flight.duration.formatted}</span>
         </div>
+        {selectedSeats && selectedSeats.length > 0 && (
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-foreground-muted">Seats</span>
+            <span className="font-medium text-primary">{selectedSeats.join(", ")}</span>
+          </div>
+        )}
       </div>
 
       {/* Price breakdown */}

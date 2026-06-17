@@ -39,7 +39,7 @@ const tradeGothic = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "NazAIRo",
+  title: "Golobe",
   description:
     "Web application for buying airline tickets and booking accommodation",
 };

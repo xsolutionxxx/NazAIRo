@@ -61,4 +61,16 @@ export class AccountService {
   ): Promise<AxiosResponse<AccountResponse>> {
     return $api.patch<AccountResponse>("/update-profile", fields);
   }
+
+  static async uploadAvatar(file: File): Promise<AxiosResponse<AccountResponse>> {
+    const form = new FormData();
+    form.append("avatar", file);
+    return $api.post<AccountResponse>("/upload-avatar", form);
+  }
+
+  static async uploadCover(file: File): Promise<AxiosResponse<AccountResponse>> {
+    const form = new FormData();
+    form.append("cover", file);
+    return $api.post<AccountResponse>("/upload-cover", form);
+  }
 }

@@ -2,7 +2,13 @@ import Stripe from "stripe";
 import prisma from "../shared/lib/prisma-db.js";
 import ApiError from "../exceptions/api-error.js";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+let _stripe = null;
+const stripe = new Proxy({}, {
+  get(_, prop) {
+    if (!_stripe) _stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+    return _stripe[prop];
+  },
+});
 
 class PaymentMethodService {
   // Get all saved cards for a user
@@ -102,13 +108,18 @@ class PaymentMethodService {
 
     await prisma.paymentMethod.delete({ where: { id: methodId } });
 
-    // If deleted card was default — auto-assign default to first remaining
-    if (method.isDefault) {
-      const first = await prisma.paymentMethod.findFirst({ where: { userId } });
-      if (first) await prisma.paymentMethod.update({ where: { id: first.id }, data: { isDefault: true } });
+    // If only one card remains or deleted card was default — make first remaining the default
+    const remaining = await prisma.paymentMethod.findMany({ where: { userId } });
+    if (remaining.length === 1 || (method.isDefault && remaining.length > 0)) {
+      if (!remaining[0].isDefault) {
+        await prisma.paymentMethod.update({ where: { id: remaining[0].id }, data: { isDefault: true } });
+      }
     }
 
-    return { message: "Payment method removed" };
+    return prisma.paymentMethod.findMany({
+      where: { userId },
+      orderBy: [{ isDefault: "desc" }, { id: "asc" }],
+    });
   }
 }
 

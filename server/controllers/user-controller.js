@@ -146,6 +146,28 @@ class UserController {
     }
   }
 
+  async uploadAvatar(req, res, next) {
+    try {
+      if (!req.file) return res.status(400).json({ message: "No file uploaded" });
+      const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+      const userData = await userService.updateProfile(req.user.id, { avatarUrl });
+      return res.json(userData);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async uploadCover(req, res, next) {
+    try {
+      if (!req.file) return res.status(400).json({ message: "No file uploaded" });
+      const backgroundUrl = `/uploads/covers/${req.file.filename}`;
+      const userData = await userService.updateProfile(req.user.id, { backgroundUrl });
+      return res.json(userData);
+    } catch (e) {
+      next(e);
+    }
+  }
+
   async changePassword(req, res, next) {
     try {
       const { id } = req.user;
@@ -164,8 +186,31 @@ class UserController {
 
   async getUsers(req, res, next) {
     try {
-      const usersData = await userService.getUsers();
+      const { search, role, page, limit } = req.query;
+      const usersData = await userService.getUsers({ search, role, page, limit });
       res.json(usersData);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async blockUser(req, res, next) {
+    try {
+      const { id } = req.params;
+      const { block } = req.body; // true = block, false = unblock
+      const result = await userService.blockUser(id, Boolean(block));
+      res.json(result);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async setRole(req, res, next) {
+    try {
+      const { id } = req.params;
+      const { role } = req.body;
+      const result = await userService.setRole(id, role);
+      res.json(result);
     } catch (e) {
       next(e);
     }

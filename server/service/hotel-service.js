@@ -9,7 +9,7 @@ class HotelService {
 
     if (nights <= 0) throw ApiError.BadRequest("Check-out must be after check-in");
 
-    const hotelWhere = { city: { contains: city, mode: "insensitive" } };
+    const hotelWhere = city ? { city: { contains: city, mode: "insensitive" } } : {};
     if (stars) hotelWhere.stars = { gte: Number(stars) };
 
     const skip = (Number(page) - 1) * Number(limit);

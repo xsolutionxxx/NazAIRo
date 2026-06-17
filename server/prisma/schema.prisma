@@ -54,6 +54,7 @@ model User {
   backgroundUrl  String?
   role             Role     @default(CLIENT)
   isActivated      Boolean  @default(false)
+  isBlocked        Boolean  @default(false)
   activationLink   String?  @unique
   stripeCustomerId String?  @unique
 
@@ -160,6 +161,8 @@ model Hotel {
   latitude    Decimal? @db.Decimal(9, 6)
   longitude   Decimal? @db.Decimal(9, 6)
 
+  reviewCount Int?
+
   rooms Room[]
 
   createdAt DateTime @default(now())
@@ -178,6 +181,7 @@ model Room {
   amenities     String[]
   imageUrls     String[]
   isAvailable   Boolean  @default(true)
+  bedType       String?
 
   hotelBookings HotelBooking[]
 
@@ -230,12 +234,15 @@ model HotelBooking {
 }
 
 model Passenger {
-  id              String   @id @default(uuid())
+  id              String    @id @default(uuid())
+  title           String?
   firstName       String
   lastName        String
-  dateOfBirth     DateTime
-  passportNumber  String
-  nationality     String
+  dateOfBirth     DateTime?
+  passportNumber  String?
+  passportExpiry  DateTime?
+  nationality     String?
+  seatNumber      String?
 
   flightBookingId String?
   flightBooking   FlightBooking? @relation(fields: [flightBookingId], references: [id], onDelete: Cascade)

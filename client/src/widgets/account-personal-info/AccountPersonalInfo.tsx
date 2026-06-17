@@ -68,11 +68,11 @@ export default function AccountPersonalInfo() {
   return (
     <>
       <AppTitle as="h1" size="lg" text="Account" className="ml-2 mb-4" />
-      <div className="mb-26 py-8 px-6 flex flex-col gap-y-8 bg-surface rounded-2xl">
+      <div className="mb-26 py-8 px-4 sm:px-6 flex flex-col gap-y-8 bg-surface rounded-2xl">
         <div className="flex justify-between items-center gap-x-4">
-          <div className="flex flex-col justify-start gap-y-2">
+          <div className="flex flex-col justify-start gap-y-2 min-w-0 flex-1">
             <span className="capitalize opacity-75">Email</span>
-            <p className="w-37.5 md:w-full font-semibold text-xl truncate">
+            <p className="font-semibold text-xl truncate">
               {user?.email}
             </p>
           </div>
@@ -81,16 +81,16 @@ export default function AccountPersonalInfo() {
             icon={Pencil}
             iconClasses="w-4.5 h-4.5 md:w-4 md:h-4"
             onClick={() => setIsEmailModalOpen(true)}
-            className="px-5"
+            className="px-3 sm:px-5 shrink-0"
           >
-            Change
+            <span className="hidden sm:inline">Change</span>
           </AppButton>
         </div>
 
         <div className="flex justify-between items-center gap-x-4">
-          <div className="flex flex-col justify-start gap-y-2">
+          <div className="flex flex-col justify-start gap-y-2 min-w-0 flex-1">
             <p className="capitalize opacity-75">Password</p>
-            <p className="w-37.5 md:w-full font-semibold text-xl truncate">
+            <p className="font-semibold text-xl truncate">
               ******************
             </p>
           </div>
@@ -99,9 +99,9 @@ export default function AccountPersonalInfo() {
             icon={Pencil}
             iconClasses="w-4.5 h-4.5 md:w-4 md:h-4"
             onClick={() => setIsPasswordModalOpen(true)}
-            className="px-5"
+            className="px-3 sm:px-5 shrink-0"
           >
-            Change
+            <span className="hidden sm:inline">Change</span>
           </AppButton>
         </div>
 

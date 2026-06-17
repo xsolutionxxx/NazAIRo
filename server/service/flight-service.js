@@ -241,6 +241,19 @@ class FlightService {
     };
   }
 
+  async getBookedSeats(flightId) {
+    const bookings = await prisma.flightBooking.findMany({
+      where: {
+        flightId,
+        booking: { status: { in: ["CONFIRMED", "PENDING"] } },
+      },
+      include: { passengers: { select: { seatNumber: true } } },
+    });
+    return bookings
+      .flatMap((b) => b.passengers.map((p) => p.seatNumber))
+      .filter(Boolean);
+  }
+
   _buildOrderBy(sortBy, sortOrder) {
     const order = sortOrder === "desc" ? "desc" : "asc";
     switch (sortBy) {

@@ -35,6 +35,15 @@ class FlightController {
     }
   }
 
+  async getBookedSeats(req, res, next) {
+    try {
+      const seats = await flightService.getBookedSeats(req.params.id);
+      return res.json(seats);
+    } catch (e) {
+      next(e);
+    }
+  }
+
   async getAirports(req, res, next) {
     try {
       const airports = await flightService.getAirports(req.query.search);

@@ -38,8 +38,8 @@ export default function ParallaxScreen({ containerRef }: ParallaxScreenProps) {
 
   return (
     <>
-      <div className="absolute top-0 left-0 inset-0 bg-linear-to-b from-black/50 via-transparent to-transparent z-85" />
-      <div className="absolute top-0 left-0 inset-0 bg-[radial-gradient(ellipse_at_center,transparent_55%,rgba(0,0,0,0.7))] z-1000" />
+      <div className="absolute top-0 left-0 inset-0 bg-linear-to-b from-black/50 via-transparent to-transparent z-85 pointer-events-none" />
+      <div className="absolute top-0 left-0 inset-0 bg-[radial-gradient(ellipse_at_center,transparent_55%,rgba(0,0,0,0.7))] z-1000 pointer-events-none" />
 
       <ParallaxItem
         {...commonParallax}

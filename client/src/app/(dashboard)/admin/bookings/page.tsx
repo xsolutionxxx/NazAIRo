@@ -22,18 +22,15 @@ export default function AdminBookingsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Bookings</h1>
-          <p className="text-foreground-muted text-sm mt-1">{data?.total ?? "—"} bookings total</p>
-        </div>
+      <div>
+        <h1 className="text-2xl font-bold">Bookings</h1>
+        <p className="text-foreground-muted text-sm mt-1">{data?.total ?? "—"} bookings total</p>
       </div>
-
-      {/* Status filter */}
-      <div className="flex gap-2">
+      {/* Status filter — horizontal scroll on mobile */}
+      <div className="flex flex-wrap gap-2">
         {STATUS_OPTIONS.map((s) => (
           <button key={s || "all"} onClick={() => { setStatus(s); load(s); }}
-            className={cn("px-4 py-2 rounded-xl text-sm font-medium border-2 transition-all",
+            className={cn("px-4 py-2 rounded-2xl text-xs font-medium border-2 transition-all whitespace-nowrap shrink-0",
               status === s ? "border-primary bg-primary-muted" : "border-[#D7E2EE] hover:border-primary text-foreground-muted")}>
             {s || "All"}
           </button>
@@ -81,7 +78,7 @@ export default function AdminBookingsPage() {
 }
 
 function TypeBadge({ type }: { type: string }) {
-  return <span className={cn("text-xs font-medium px-2.5 py-1 rounded-full", type === "FLIGHT" ? "bg-blue-50 text-blue-700" : "bg-amber-50 text-amber-700")}>{type === "FLIGHT" ? "✈ Flight" : "🏨 Hotel"}</span>;
+  return <span className={cn("inline-flex items-center gap-1 whitespace-nowrap text-xs font-medium px-2.5 py-1 rounded-full", type === "FLIGHT" ? "bg-blue-50 text-blue-700" : "bg-amber-50 text-amber-700")}>{type === "FLIGHT" ? "✈ Flight" : "🏨 Hotel"}</span>;
 }
 
 function StatusBadge({ status }: { status: string }) {

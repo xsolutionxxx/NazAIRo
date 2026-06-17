@@ -18,9 +18,6 @@ export const hotelBookingApi = {
     checkIn: string;
     checkOut: string;
     guestCount: number;
-    guests: {
-      firstName: string; lastName: string;
-      dateOfBirth: string; passportNumber: string; nationality: string;
-    }[];
+    guests: { firstName: string; lastName: string }[];
   }) => $api.post<{ bookingId: string; clientSecret: string; totalPrice: number }>("/bookings/hotel", data),
 };

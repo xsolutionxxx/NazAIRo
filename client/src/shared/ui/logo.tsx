@@ -20,7 +20,7 @@ export const Logo = ({ className }: LogoProps) => {
     >
       <Image
         src="/logo_dark.svg"
-        alt="Logotype NazAIRo"
+        alt="Logotype Golobe"
         width={110}
         height={40}
         priority
@@ -29,7 +29,7 @@ export const Logo = ({ className }: LogoProps) => {
       />
       <Image
         src="/logo_light.svg"
-        alt="Logotype NazAIRo"
+        alt="Logotype Golobe"
         width={110}
         height={40}
         priority

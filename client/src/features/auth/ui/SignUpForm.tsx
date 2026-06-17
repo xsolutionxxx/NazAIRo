@@ -51,7 +51,7 @@ export default function SignUpForm() {
 
     if (registration.fulfilled.match(resultAction)) {
       reset();
-      redirect("/account");
+      redirect(`/verify-email?email=${encodeURIComponent(data.email)}`);
     }
   };
 
