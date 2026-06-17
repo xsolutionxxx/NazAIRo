@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
-const RAILWAY_URL = process.env.RAILWAY_API_URL || "http://localhost:5000";
+const RAILWAY_URL =
+  process.env.RAILWAY_API_URL ||
+  "https://nazairo-production.up.railway.app";
 
 const nextConfig: NextConfig = {
   images: {
