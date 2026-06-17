@@ -8,6 +8,11 @@ import { uploadAvatar } from "@features/auth/model/authActions";
 
 const SERVER_URL = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") ?? "http://localhost:5000";
 
+function resolveMediaUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  return url.startsWith("http") ? url : `${SERVER_URL}${url}`;
+}
+
 export default function EditableAvatar() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -17,8 +22,7 @@ export default function EditableAvatar() {
   const dispatch = useAppDispatch();
   const { user, authLoadingStatus } = useAppSelector((state) => state.authReducer);
 
-  const resolvedSrc = previewUrl
-    ?? (user?.avatarUrl ? `${SERVER_URL}${user.avatarUrl}` : null);
+  const resolvedSrc = previewUrl ?? resolveMediaUrl(user?.avatarUrl);
 
   if (!user && authLoadingStatus === "loading") {
     return (
@@ -50,7 +54,7 @@ export default function EditableAvatar() {
     try {
       const result = await dispatch(uploadAvatar(pendingFile)).unwrap();
       // Keep showing the image — switch preview to real server URL
-      setPreviewUrl(result.avatarUrl ? `${SERVER_URL}${result.avatarUrl}` : null);
+      setPreviewUrl(resolveMediaUrl(result.avatarUrl));
       setPendingFile(null);
     } catch {
       // keep preview so user can retry

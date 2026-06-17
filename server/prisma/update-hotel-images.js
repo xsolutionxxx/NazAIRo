@@ -30,9 +30,9 @@ const pool_room_luxury    = [
   U("1509927083803-4bd519298ac4"), // minimal luxury room
 ];
 const pool_room_standard  = [
-  U("1534003328487-28cd91e7b5e0"), // cosy double room
+  U("1554118811-1e0d58224f24"),    // cosy double room
   U("1629794226066-349748040fb7"), // modern hotel room
-  U("1609766934025-9b1b1bf0a5d9"), // tidy twin/double
+  U("1590490360182-c33d57733427"), // tidy twin/double
   U("1549294413-26f195200c16"),    // bedroom warm light
   U("1584132967334-10e028bd69f7"), // contemporary room
   U("1520250497591-112f2f40a3f4"), // rooftop/terrace room
@@ -40,8 +40,8 @@ const pool_room_standard  = [
 const pool_lobby_grand    = [
   U("1542314831-068cd1dbfeeb"),    // palatial lobby
   U("1562778612-e1e0cda9915c"),    // art-deco facade
-  U("1601565415267-724db0a8b7fe"), // hotel at dusk
-  U("1551882547-ff40c4a49f4e"),    // modern exterior glass
+  U("1545324418-cc1a3fa10c00"),    // hotel at dusk
+  U("1596178060810-72f53ce9a65c"), // modern exterior glass
   U("1563911302283-d2bc129e7570"), // chandelier lobby
 ];
 const pool_outdoor        = [
@@ -53,7 +53,7 @@ const pool_outdoor        = [
 ];
 const pool_restaurant_bar = [
   U("1414235077428-338989a2e8c0"), // fine dining table
-  U("1551632436-0b19d61c01e7"),    // rooftop bar
+  U("1576675784201-0e142b423952"), // rooftop bar
   U("1559329007-40df8a9345d8"),    // cocktail bar
   U("1455587734955-081b22074882"), // hotel bar evening
   U("1517248135467-4c7edcad34c4"), // restaurant interior

@@ -1,21 +1,22 @@
+import { v2 as cloudinary } from "cloudinary";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
 import multer from "multer";
-import path from "path";
-import { fileURLToPath } from "url";
-import fs from "fs";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const uploadsRoot = path.join(__dirname, "../../public/uploads");
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key:    process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
-function makeStorage(subfolder) {
-  const dir = path.join(uploadsRoot, subfolder);
-  fs.mkdirSync(dir, { recursive: true });
-
-  return multer.diskStorage({
-    destination: (_, __, cb) => cb(null, dir),
-    filename: (req, file, cb) => {
-      const ext = path.extname(file.originalname).toLowerCase() || ".jpg";
-      cb(null, `${req.user.id}-${Date.now()}${ext}`);
-    },
+function makeStorage(folder) {
+  return new CloudinaryStorage({
+    cloudinary,
+    params: (req) => ({
+      folder,
+      public_id: `${req.user.id}-${Date.now()}`,
+      allowed_formats: ["jpg", "jpeg", "png", "webp", "gif"],
+      transformation: [{ quality: "auto", fetch_format: "auto" }],
+    }),
   });
 }
 
@@ -27,13 +28,13 @@ const imageFilter = (_, file, cb) => {
 };
 
 export const uploadAvatar = multer({
-  storage: makeStorage("avatars"),
+  storage: makeStorage("nazairo/avatars"),
   fileFilter: imageFilter,
   limits: { fileSize: 5 * 1024 * 1024 },
 }).single("avatar");
 
 export const uploadCover = multer({
-  storage: makeStorage("covers"),
+  storage: makeStorage("nazairo/covers"),
   fileFilter: imageFilter,
   limits: { fileSize: 10 * 1024 * 1024 },
 }).single("cover");

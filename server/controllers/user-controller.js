@@ -149,7 +149,7 @@ class UserController {
   async uploadAvatar(req, res, next) {
     try {
       if (!req.file) return res.status(400).json({ message: "No file uploaded" });
-      const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+      const avatarUrl = req.file.path;
       const userData = await userService.updateProfile(req.user.id, { avatarUrl });
       return res.json(userData);
     } catch (e) {
@@ -160,7 +160,7 @@ class UserController {
   async uploadCover(req, res, next) {
     try {
       if (!req.file) return res.status(400).json({ message: "No file uploaded" });
-      const backgroundUrl = `/uploads/covers/${req.file.filename}`;
+      const backgroundUrl = req.file.path;
       const userData = await userService.updateProfile(req.user.id, { backgroundUrl });
       return res.json(userData);
     } catch (e) {

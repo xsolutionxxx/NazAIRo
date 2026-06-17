@@ -10,6 +10,11 @@ import { uploadCover } from "@features/auth/model/authActions";
 
 const SERVER_URL = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") ?? "http://localhost:5000";
 
+function resolveMediaUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  return url.startsWith("http") ? url : `${SERVER_URL}${url}`;
+}
+
 export default function ChangedCover({
   className,
   children,
@@ -26,9 +31,7 @@ export default function ChangedCover({
   const { user } = useAppSelector((state) => state.authReducer);
 
   const resolvedCover =
-    previewCover
-    ?? (user?.backgroundUrl ? `${SERVER_URL}${user.backgroundUrl}` : null)
-    ?? "/landscape.jpg";
+    previewCover ?? resolveMediaUrl(user?.backgroundUrl) ?? "/landscape.jpg";
 
   const handleChangeClick = () => changeCoverRef.current?.click();
 
@@ -47,7 +50,7 @@ export default function ChangedCover({
     setIsUploading(true);
     try {
       const result = await dispatch(uploadCover(pendingFile)).unwrap();
-      setPreviewCover(result.backgroundUrl ? `${SERVER_URL}${result.backgroundUrl}` : null);
+      setPreviewCover(resolveMediaUrl(result.backgroundUrl));
       setPendingFile(null);
     } catch {
       // keep preview so user can retry
