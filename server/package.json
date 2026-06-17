@@ -10,6 +10,8 @@
   },
   "scripts": {
     "dev": "nodemon index.js",
+    "start": "node index.js",
+    "build": "npx prisma generate",
     "seed": "node prisma/seed.js"
   },
   "prisma": {
